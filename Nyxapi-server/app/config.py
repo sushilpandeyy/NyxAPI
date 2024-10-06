@@ -7,17 +7,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
- 
-DATABASE_URL = "postgresql+asyncpg://nyxdb_owner:4yqLIN0VJcTY@ep-young-surf-a1edx31m.ap-southeast-1.aws.neon.tech/nyxdb"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Create the SSL context
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
 
+# Async engine with SSL configuration in connect_args
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,
-    connect_args={"ssl": ssl_context}  
+    connect_args={"ssl": ssl_context}  # Proper way to pass SSL context
 )
 
 SessionLocal = sessionmaker(
