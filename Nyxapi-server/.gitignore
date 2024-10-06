@@ -2,3 +2,6 @@ venv
 migrations
 app/__pycache__
 .env
+models/__pycache__
+schema/__pycache__
+routes/__pycache__

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy.sql import func
 from app.config import Base
 
 class User(Base):
@@ -9,3 +10,5 @@ class User(Base):
     email = Column(String(100), unique=True, index=True, nullable=False)
     password = Column(String(128), nullable=False)
     email_verified = Column(Boolean, default=False)
+    created = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated = Column(DateTime(timezone=True), onupdate=func.now())
