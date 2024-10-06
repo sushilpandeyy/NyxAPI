@@ -1,9 +1,15 @@
-from sqlalchemy import Column, Integer, String
-from .database import Base
+# app/main.py
+from fastapi import FastAPI
+from app.routes.user_routes import router as user_router
+from app.config import engine, Base
 
-class User(Base):
-    __tablename__ = "users"
+# Initialize the FastAPI app
+app = FastAPI()
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
+# Include the user router
+app.include_router(user_router)
+
+# Create database tables
+@app.on_event("startup")
+def on_startup():
+    Base.metadata.create_all(bind=engine)
