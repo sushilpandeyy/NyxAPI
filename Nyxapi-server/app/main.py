@@ -1,15 +1,16 @@
-# app/main.py
 from fastapi import FastAPI
-from app.routes.user_routes import router as user_router
 from app.config import engine, Base
 
-# Initialize the FastAPI app
 app = FastAPI()
 
-# Include the user router
-app.include_router(user_router)
-
-# Create database tables
+# Asynchronous table creation during the startup event
 @app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
+async def on_startup():
+    async with engine.begin() as conn:
+        # Asynchronous table creation
+        await conn.run_sync(Base.metadata.create_all)
+
+# Example root route
+@app.get("/")
+async def read_root():
+    return {"message": "Hello World"}
