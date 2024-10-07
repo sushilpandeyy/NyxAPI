@@ -5,3 +5,4 @@ app/__pycache__
 models/__pycache__
 schema/__pycache__
 routes/__pycache__
+alembic.ini
