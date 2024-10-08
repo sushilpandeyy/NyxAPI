@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
 from app.config import engine, Base
 from app.routes.user_routes import userrouter
+from app.routes.project_routes import projectroutes
 
 app = FastAPI()
 
@@ -31,7 +32,7 @@ async def on_startup():
     await reset_db_if_structure_differs(engine)
 
 app.include_router(userrouter, prefix="/users", tags=["Users"])
-
+app.include_router(projectroutes, prefix="/project", tags=["Project"])
 
 @app.get("/")
 async def read_root():
