@@ -27,7 +27,8 @@ class Project(Base):
     Title = Column(String, nullable=False)
     UserID = Column(Integer, ForeignKey('users.id'), nullable=False)
     created = Column(DateTime, default=func.now(), nullable=False)
-    Description = Column(String, nullable=True)
+    Description = Column(String)
+    Img = Column(String)
 
     # Relationship to the User table
     user = relationship('User', back_populates='projects')

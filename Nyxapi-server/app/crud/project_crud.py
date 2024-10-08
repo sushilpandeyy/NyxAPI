@@ -10,10 +10,10 @@ def generate_random_six_digit():
 
 
 # Function to create a new project
-async def create_project(db: AsyncSession, title: str, userid: int, description: str):
+async def create_project(db: AsyncSession, title: str, userid: int, Description: str, Img: str):
     try: 
         # Create a new Project instance
-        project = Project(Projectid=generate_random_six_digit(), Title=title, UserID=userid, Description=description)
+        project = Project(Projectid=generate_random_six_digit(), Title=title, UserID=userid, Description=Description, Img=Img)
         db.add(project)  # Add the project to the session
         await db.commit()  # Commit the transaction
         await db.refresh(project)  # Refresh the project instance with the latest data

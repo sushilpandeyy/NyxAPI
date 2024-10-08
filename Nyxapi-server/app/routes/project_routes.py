@@ -10,9 +10,9 @@ projectroutes = APIRouter()
 async def createproject(projectdata: Projectcreate,  db: AsyncSession = Depends(get_db)):
     title= projectdata.title
     userid=projectdata.userid
-    description=projectdata.description
-
-    project = await create_project(db=db, title=title, userid=userid, descripton=description)
+    Description=projectdata.Description
+    Img=projectdata.Img
+    project = await create_project(db=db, title=title, userid=userid, Description=Description, Img=Img)
     return {"msg": "Project created", "project_info": project}
 
 @projectroutes.get("/")
