@@ -3,7 +3,6 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.config import Base
 
-
 class User(Base):
     __tablename__ = 'users'
 
@@ -15,15 +14,15 @@ class User(Base):
     created = Column(DateTime(timezone=True), server_default=func.now())
     updated = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationship with Project
+    # Relationship to the Project table
     projects = relationship('Project', back_populates='user')
 
 
 class Project(Base):
     __tablename__ = "projects"
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)  # Primary key
-    Projectid = Column(Integer, unique=True, nullable=False)  # 6-digit project ID
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    Projectid = Column(Integer, unique=True, nullable=False)
     Title = Column(String, nullable=False)
     UserID = Column(Integer, ForeignKey('users.id'), nullable=False)
     created = Column(DateTime, default=func.now(), nullable=False)
@@ -34,7 +33,7 @@ class Project(Base):
     user = relationship('User', back_populates='projects')
 
     # Relationship with Endpoints
-    endpoints = relationship('Endpoint', back_populates='project')
+    endpoints = relationship('Endpoint', back_populates='project')  # Backpopulates to Endpoint.project
 
 
 class Endpoint(Base):
@@ -42,12 +41,13 @@ class Endpoint(Base):
 
     endpointid = Column(Integer, primary_key=True, index=True, autoincrement=True)
     Endpoint = Column(String, nullable=False)
-    projectid = Column(Integer, ForeignKey('projects.Projectid'), nullable=False)
-    
-    # Relationship to Project
-    project = relationship('Project', back_populates='endpoints')
-    
-    description = Column(String, nullable=False)
-    payload = Column(JSON, nullable=True)  
-    created = Column(DateTime(timezone=True), server_default=func.now())
-    updated = Column(DateTime(timezone=True), onupdate=func.now())
+    Projectid = Column(Integer, ForeignKey('projects.Projectid'), nullable=False)
+
+    # The corrected relationship to Project
+    project = relationship('Project', back_populates='endpoints')  # Correct back_populates reference
+
+    Apitype = Column(JSON, nullable=True)
+    Payload = Column(JSON, nullable=True)  
+
+    Created = Column(DateTime(timezone=True), server_default=func.now())
+    Updated = Column(DateTime(timezone=True), onupdate=func.now())
