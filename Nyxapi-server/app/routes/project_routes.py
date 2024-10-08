@@ -16,6 +16,6 @@ async def createproject(projectdata: Projectcreate,  db: AsyncSession = Depends(
 
 @projectroutes.get("/")
 async def getproject(userid: int, db: AsyncSession = Depends(get_db)):
-    projects= get_projects(db=db, userid=userid)
-    
-    return {"User": userid , "Projects": projects}
+    proje= await get_projects(db=db, userid=userid)
+    print(proje)
+    return {"User": userid , "Projects": proje}
