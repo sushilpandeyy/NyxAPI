@@ -4,7 +4,7 @@ from app.models.user import Endpoint  # Assuming this is your SQLAlchemy model
 from fastapi import HTTPException
 from pydantic import Json
 
-async def create_endpoint(db: AsyncSession, endpoint_str: str, projectid: int, apitype: Json, payload: Json):
+async def create_endpoint(db: AsyncSession, endpoint_str: str, projectid: int, apitype: str, payload: str):
     try:
         # Create a new Endpoint instance
         new_endpoint = Endpoint(Endpoint=endpoint_str, Projectid=projectid, Apitype=apitype, Payload=payload)

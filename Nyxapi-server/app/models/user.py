@@ -43,11 +43,10 @@ class Endpoint(Base):
     Endpoint = Column(String, nullable=False)
     Projectid = Column(Integer, ForeignKey('projects.Projectid'), nullable=False)
 
-    # The corrected relationship to Project
     project = relationship('Project', back_populates='endpoints')  # Correct back_populates reference
 
-    Apitype = Column(JSON, nullable=True)
-    Payload = Column(JSON, nullable=True)  
+    Apitype = Column(String, nullable=True)   
+    Payload = Column(String, nullable=True) 
 
     Created = Column(DateTime(timezone=True), server_default=func.now())
     Updated = Column(DateTime(timezone=True), onupdate=func.now())
