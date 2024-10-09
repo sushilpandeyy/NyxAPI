@@ -10,12 +10,13 @@ import {
 
 import Homepage from './pages/Homepage.jsx'
 import Auth from './components/auth.jsx';
-
+import Dashboard from './components/dashboard.jsx';
 const router= createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App/>}>
       <Route path='' element={<Homepage/>}/>
       <Route path="/auth" element={<Auth />} />
+      <Route path="/dashboard" element={<Dashboard />} />
     </Route>
   )
 )

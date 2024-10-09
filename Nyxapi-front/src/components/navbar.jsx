@@ -20,17 +20,17 @@ const Navbar = () => {
 
   return (
     <nav className={`bg-gray-800 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           {/* Left: Logo with custom font */}
-          <div className="flex-shrink-0 flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <h1 className={`text-3xl font-bold roboto-flex-bold ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              NyxAPi
+              NyxAPI
             </h1>
           </div>
           
           {/* Right: Navigation Links */}
-          <div className="hidden md:flex space-x-8 items-center">
+          <div className="items-center hidden space-x-8 md:flex">
             <a href="/" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular ${isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-800 hover:text-gray-600'}`}>
               Home
             </a>
@@ -46,12 +46,12 @@ const Navbar = () => {
           </div>
 
           {/* Toggle Theme Icon */}
-          <div onClick={toggleTheme} className="cursor-pointer flex gap-4">
-            <h2 className='text-center p-1 text-m'>Theme :</h2>
+          <div onClick={toggleTheme} className="flex gap-4 cursor-pointer">
+            <h2 className='p-1 text-center text-m'>Theme :</h2>
             {isDarkMode ? (
-              <FaToggleOn className="text-white text-4xl" />
+              <FaToggleOn className="text-4xl text-white" />
             ) : (
-              <FaToggleOff className="text-gray-800 text-4xl" />
+              <FaToggleOff className="text-4xl text-gray-800" />
             )}
           </div>
         </div>
