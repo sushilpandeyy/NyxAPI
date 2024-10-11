@@ -1,3 +1,4 @@
+from sqlalchemy.future import select  # Add this import
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from app.models.user import User
@@ -18,34 +19,49 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 async def create_user(db: AsyncSession, name: str, email: str, password: str) -> Dict:
     try:
+        # Check if the user already exists
+        stmt = select(User).filter(User.email == email)
+        result = await db.execute(stmt)
+        existing_user = result.scalar_one_or_none()
+
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User with this email already exists.")
+
         # Hash the password for PostgreSQL
         hashed_password = hash_password(password)
 
-        # Create user in PostgreSQL
-        user = User(name=name, email=email, password=hashed_password)
-        db.add(user)
+        # Create new user in PostgreSQL
+        new_user = User(name=name, email=email, password=hashed_password)
+        db.add(new_user)
         await db.commit()
-        await db.refresh(user)
+
+        # Refresh to ensure the new_user object is populated with the ID
+        await db.refresh(new_user)
+
+        # Ensure the user object is not a dict and has an ID
+        if not hasattr(new_user, 'id') or new_user.id is None:
+            raise HTTPException(status_code=500, detail="User creation failed. No ID returned.")
 
         # Generate a token after user creation
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
-            data={"sub": user.email}, expires_delta=access_token_expires
+            data={"sub": new_user.email}, expires_delta=access_token_expires
         )
-        
+
         # Return token along with user data
         return {
             "access_token": access_token,
             "token_type": "bearer",
             "user": {
-                "email": user.email,
-                "user_id": user.id,
-                "name": user.name
+                "email": new_user.email,
+                "user_id": new_user.id,
+                "name": new_user.name
             }
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error creating user: {str(e)}")
 
+        
 async def get_user_by_email(db: AsyncSession, email: str) -> Optional[User]:
     stmt = select(User).filter(User.email == email)
     result = await db.execute(stmt)

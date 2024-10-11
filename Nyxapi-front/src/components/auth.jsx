@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+  const [name, setName] = useState(''); // New state for name in signup
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,25 +13,33 @@ const Auth = () => {
     e.preventDefault();
     try {
       // Prepare request body
-      const requestBody = {
-        email: email,
-        password: password,
-      };
+      let requestBody;
+      let endpoint;
+      
+      if (isLogin) {
+        // If login, prepare login request
+        requestBody = { email, password };
+        endpoint = 'http://localhost:8000/users/authenticate/';
+      } else {
+        // If sign-up, prepare sign-up request
+        requestBody = { name, email, password };
+        endpoint = 'http://localhost:8000/users/';
+      }
 
       // Make the request to the FastAPI backend
-      const response = await axios.post('http://localhost:8000/users/authenticate/', requestBody);
-      
+      const response = await axios.post(endpoint, requestBody);
+
       if (response.data && response.data.user) {
         // Save the token and user data in session storage
         const { access_token, user } = response.data.user;
         sessionStorage.setItem('token', access_token);
         sessionStorage.setItem('user', JSON.stringify(user));
 
-        // Redirect to the dashboard or another page after successful login
+        // Redirect to the dashboard or another page after successful login/signup
         window.location.href = '/dashboard'; // Change '/dashboard' to your protected route
       }
     } catch (err) {
-      setError('Login failed. Please check your credentials and try again.');
+      setError(isLogin ? 'Login failed. Please check your credentials and try again.' : 'Sign up failed. Please try again.');
     }
   };
 
@@ -54,6 +63,21 @@ const Auth = () => {
             <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
               {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
               
+              {/* Conditionally render the Fullname input only for Signup */}
+              {!isLogin && (
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-400">Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-2 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    required
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-400">Email</label>
                 <input
