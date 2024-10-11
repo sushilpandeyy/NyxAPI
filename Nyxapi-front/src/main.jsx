@@ -9,16 +9,23 @@ import {
 } from "react-router-dom";
 
 import Homepage from './pages/Homepage.jsx'
+<<<<<<< Updated upstream
 import Auth from './components/auth.jsx';
 import Dashboard from './components/dashboard.jsx';
 import Endpoint from './components/apiEndpoint.jsx'
+=======
+
+>>>>>>> Stashed changes
 const router= createBrowserRouter(
   createRoutesFromElements(
     <Route path='/' element={<App/>}>
       <Route path='' element={<Homepage/>}/>
+<<<<<<< Updated upstream
       <Route path="/auth" element={<Auth />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/endpoint" element={<Endpoint />} />
+=======
+>>>>>>> Stashed changes
     </Route>
   )
 )
