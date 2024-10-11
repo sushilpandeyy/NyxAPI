@@ -88,7 +88,7 @@ const EndpointSection = () => {
         {/* Flex container to keep the span and input on the same line */}
         <div className="flex items-center mb-4">
           {/* Static and uneditable part of the URL */}
-          <Link to={`http://${projectIdInt}.nyxapi.com/${endpoint}`}>
+          <Link to={`http://${projectIdInt}.localhost:8001/${endpoint}`}>
             <span className="inline-block p-2 font-mono text-sm text-blue-800 bg-blue-100 rounded-l whitespace-nowrap">
               http://{projectIdInt}.nyxapi.com/
             </span>
