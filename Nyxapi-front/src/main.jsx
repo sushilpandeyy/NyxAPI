@@ -27,7 +27,7 @@ const router = createBrowserRouter(
 
       <Route path="/dashboard" element={<Layout />}> {/* Parent: Dashboard layout */}
         <Route path="" element={<Projects />} /> {/* Projects */}
-        <Route path="endpoints" element={<Endpoint />} /> {/* Endpoints */}
+        <Route path="endpoints/:Projectid" element={<Endpoint />} /> {/* Endpoints */}
       </Route>
       <Route path="*" element={<NotFound />} /> 
     </>

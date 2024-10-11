@@ -63,7 +63,6 @@ const EndpointSection = () => {
 const EndpointScreen = () => {
   return (
     <>
-      <Navbar />
       <EndpointSection />
     </>
   );
