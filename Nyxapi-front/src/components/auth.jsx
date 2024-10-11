@@ -1,7 +1,9 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+<<<<<<< Updated upstream:Nyxapi-front/src/components/auth.jsx
+import React, { useState } from 'react';
 
-const Login = () => {
+const Auth = () => {
+  const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
       <div className="relative p-1 bg-transparent rounded-lg shadow-lg">
@@ -20,6 +22,18 @@ const Login = () => {
 
           <div className="flex flex-col items-center justify-center px-6 py-10">
             <form className="w-full max-w-md space-y-4">
+              {/* Conditionally render the Fullname input only for Signup */}
+              {!isLogin && (
+                <div>
+                  <label className="block mb-1 text-sm font-medium text-gray-400">Fullname</label>
+                  <input
+                    type="text"
+                    placeholder="Enter your fullname"
+                    className="w-full px-4 py-2 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-400">Email</label>
                 <input
@@ -40,14 +54,8 @@ const Login = () => {
                 type="submit"
                 className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                Submit
+                {isLogin ? 'Login' : 'Sign up'}
               </button>
-              <p className='text-center text-white'>
-                Don't have an account?{' '}
-                <Link to="/signup" className="text-indigo-400 hover:underline">
-                  Sign up
-                </Link>
-              </p>
             </form>
 
             <div className="w-full max-w-md mt-6 space-y-4">
@@ -68,6 +76,31 @@ const Login = () => {
                 Continue with GitHub
               </button>
             </div>
+
+            {/* Toggle between login and signup views */}
+            <p className='mt-4 text-center text-white'>
+              {isLogin ? (
+                <>
+                  Don't have an account?{' '}
+                  <span
+                    onClick={() => setIsLogin(false)}
+                    className="text-indigo-400 cursor-pointer hover:underline"
+                  >
+                    Sign up
+                  </span>
+                </>
+              ) : (
+                <>
+                  Already have an account?{' '}
+                  <span
+                    onClick={() => setIsLogin(true)}
+                    className="text-indigo-400 cursor-pointer hover:underline"
+                  >
+                    Login
+                  </span>
+                </>
+              )}
+            </p>
           </div>
         </div>
       </div>
@@ -75,4 +108,6 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Auth;
+=======
+>>>>>>> Stashed changes:Nyxapi-front/src/components/signup.jsx
