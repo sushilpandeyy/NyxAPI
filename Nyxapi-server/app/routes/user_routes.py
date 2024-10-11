@@ -45,4 +45,4 @@ async def authenticate_user(user_data: UserAuthenticate, db: AsyncSession = Depe
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
-    return {"msg": "User authenticated"}
+    return {"msg": "User authenticated", "user": user}

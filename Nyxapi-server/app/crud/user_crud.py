@@ -2,9 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.user import User
 from passlib.context import CryptContext
-from typing import Optional
+from typing import Optional, Dict
 from fastapi import HTTPException
-#from app.crud.appwrite_auth import appwrite_register_user, appwrite_send_verification_email, appwrite_login_user
+from app.crud.jwt import create_access_token
+from datetime import timedelta
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -56,15 +57,31 @@ async def verify_user_email(db: AsyncSession, user_id: int) -> bool:
     return False
 
 
-async def authenticate_user(db: AsyncSession, email: str, password: str) -> Optional[User]:
-    try:
-        # Authenticate user via Appwrite
-        #session = await appwrite_login_user(email=email, password=password)
+ACCESS_TOKEN_EXPIRE_MINUTES = 60  # Token expiration time
 
-        # Retrieve user from PostgreSQL
+async def authenticate_user(db: AsyncSession, email: str, password: str) -> Optional[Dict]:
+    try:
+        # Fetch user from the database
         user = await get_user_by_email(db, email)
+        
+        # Verify password
         if user and verify_password(password, user.password):
-            return {"msg": "User authenticated"}
+            # Create a token for the user
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(
+                data={"sub": user.email}, expires_delta=access_token_expires
+            )
+            
+            # Return token along with user data
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": {
+                    "email": user.email,
+                    "user_id": user.id,
+                    "name": user.name
+                }
+            }
         else:
             raise HTTPException(status_code=401, detail="Invalid credentials")
     except Exception as e:
