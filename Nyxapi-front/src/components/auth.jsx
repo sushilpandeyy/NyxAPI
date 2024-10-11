@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream:Nyxapi-front/src/components/auth.jsx
 import React, { useState } from 'react';
 
 const Auth = () => {
@@ -109,5 +108,3 @@ const Auth = () => {
 };
 
 export default Auth;
-=======
->>>>>>> Stashed changes:Nyxapi-front/src/components/signup.jsx
