@@ -1,7 +1,38 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Prepare request body
+      const requestBody = {
+        email: email,
+        password: password,
+      };
+
+      // Make the request to the FastAPI backend
+      const response = await axios.post('http://localhost:8000/users/authenticate/', requestBody);
+      
+      if (response.data && response.data.user) {
+        // Save the token and user data in session storage
+        const { access_token, user } = response.data.user;
+        sessionStorage.setItem('token', access_token);
+        sessionStorage.setItem('user', JSON.stringify(user));
+
+        // Redirect to the dashboard or another page after successful login
+        window.location.href = '/dashboard'; // Change '/dashboard' to your protected route
+      }
+    } catch (err) {
+      setError('Login failed. Please check your credentials and try again.');
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900">
@@ -20,25 +51,18 @@ const Auth = () => {
           </div>
 
           <div className="flex flex-col items-center justify-center px-6 py-10">
-            <form className="w-full max-w-md space-y-4">
-              {/* Conditionally render the Fullname input only for Signup */}
-              {!isLogin && (
-                <div>
-                  <label className="block mb-1 text-sm font-medium text-gray-400">Fullname</label>
-                  <input
-                    type="text"
-                    placeholder="Enter your fullname"
-                    className="w-full px-4 py-2 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              )}
-
+            <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
+              {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
+              
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-400">Email</label>
                 <input
                   type="email"
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-2 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
               <div>
@@ -46,7 +70,10 @@ const Auth = () => {
                 <input
                   type="password"
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-2 text-white bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  required
                 />
               </div>
               <button

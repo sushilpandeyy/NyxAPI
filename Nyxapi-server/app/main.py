@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncEngine
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import inspect
@@ -7,8 +8,16 @@ from app.routes.user_routes import userrouter
 from app.routes.project_routes import projectroutes
 from app.routes.endpoints_route import endpointroutes
 
-
 app = FastAPI()
+
+# Enable CORS to allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 # Function to compare and reset the structure if needed
 async def reset_db_if_structure_differs(engine: AsyncEngine):
@@ -33,11 +42,12 @@ async def reset_db_if_structure_differs(engine: AsyncEngine):
 async def on_startup():
     await reset_db_if_structure_differs(engine)
 
+# Include user, project, and endpoint routes
 app.include_router(userrouter, prefix="/users", tags=["Users"])
 app.include_router(projectroutes, prefix="/project", tags=["Project"])
 app.include_router(endpointroutes, prefix="/endpoints", tags=["Endpoint"])
 
-
+# Root endpoint
 @app.get("/")
 async def read_root():
     return {"message": "Hello World"}
