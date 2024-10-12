@@ -21,7 +21,7 @@ async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db))
     
     # Await the asynchronous create_user function
     user = await user_crud.create_user(db=db, name=name, email=email, password=password)
-    return {"msg": "User created", "user_id": user.id}
+    return {"msg": "User created", "user": user}
 
 @userrouter.post("/{user_id}/verify/")
 async def verify_user_email(user_id: int, db: AsyncSession = Depends(get_db)):
@@ -45,4 +45,4 @@ async def authenticate_user(user_data: UserAuthenticate, db: AsyncSession = Depe
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     
-    return {"msg": "User authenticated"}
+    return {"msg": "User authenticated", "user": user}
