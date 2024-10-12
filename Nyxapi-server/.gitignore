@@ -7,3 +7,4 @@ schema/__pycache__
 routes/__pycache__
 alembic.ini
 alembic
+crud/__pycache__
