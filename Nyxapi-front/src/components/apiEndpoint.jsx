@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaUserFriends, FaEllipsisV } from 'react-icons/fa';
@@ -10,7 +10,13 @@ const EndpointSection = () => {
   const [isJsonInputVisible, setIsJsonInputVisible] = useState(false); // State to manage visibility of JSON input
   const [jsonData, setJsonData] = useState(''); // State to store the entered JSON data
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emails, setEmails] = useState([]);
 
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
   // Convert Projectid to an integer
   const projectIdInt = parseInt(Projectid, 10); // Parse Projectid as an integer
 
@@ -61,7 +67,56 @@ const EndpointSection = () => {
     }
   };
 
+
+
+  // Fetch emails when the modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      const fetchEmails = async () => {
+        try {
+          const response = await axios.get(`http://localhost:8000/share/${projectIdInt}`);
+          setEmails(response.data.emails);
+        } catch (error) {
+          console.error('Error fetching emails:', error);
+          setError('Failed to load emails.');
+        }
+      };
+
+      fetchEmails();
+    }
+  }, [isModalOpen, projectIdInt]);
+
+  const handleAddEmail = async (e) => {
+    e.preventDefault();
+    if (email) {
+      try {
+        const response = await axios.post('http://localhost:8000/share/', {
+          projectid: projectIdInt,
+          email,
+        });
+
+        if (response.status === 200) {
+          // Add the email to the list
+          setEmails((prev) => [...prev, email]);
+          setEmail(''); // Clear input field
+          toggleModal(); // Close the modal
+        } else {
+          setError('Failed to add email.');
+        }
+      } catch (error) {
+        console.error('Error adding email:', error);
+        setError('Failed to add email.');
+      }
+    }
+  };
+
+  const handleRemoveEmail = (emailToRemove) => {
+    setEmails((prev) => prev.filter((email) => email !== emailToRemove));
+    // Optionally, make a DELETE request to remove the email from the server
+  };
+
   return (
+    <>
     <div className="flex flex-col items-center min-h-screen pt-16 text-white bg-gray-900">
       <div className="flex items-center justify-between w-full max-w-3xl mb-4">
         <div className="flex items-center">
@@ -77,7 +132,7 @@ const EndpointSection = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <FaUserFriends className="text-xl text-gray-400 cursor-pointer hover:text-white" title="Collaborators" />
+          <FaUserFriends onClick={toggleModal} className="text-xl text-gray-400 cursor-pointer hover:text-white" title="Collaborators" />
           <FaEllipsisV className="text-xl text-gray-400 cursor-pointer hover:text-white" title="More options" />
         </div>
       </div>
@@ -145,6 +200,63 @@ const EndpointSection = () => {
         </div>
       </div>
     </div>
+    {isModalOpen && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-gray-800 p-6 rounded-lg w-1/3">
+          <h3 className="text-xl font-semibold text-white mb-4">Add Collaborator</h3>
+          <form onSubmit={handleAddEmail}>
+            <div className="mb-4">
+              <label className="block text-gray-400">Email ID</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 text-white rounded focus:outline-none"
+                required
+              />
+            </div>
+
+            {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
+
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={toggleModal}
+                className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+              >
+                Add
+              </button>
+            </div>
+          </form>
+
+          {/* Display list of shared emails */}
+          <div className="mt-4">
+            <h4 className="text-lg font-semibold text-white mb-2">Shared Emails:</h4>
+            <ul className="list-disc list-inside">
+              {emails.map((emailItem) => (
+                <li key={emailItem} className="flex justify-between items-center text-gray-300">
+                  {emailItem}
+                  <button
+                    onClick={() => handleRemoveEmail(emailItem)}
+                    className="ml-2 text-red-500 hover:text-red-700"
+                  >
+                    ✖️
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    )}
+
+    </>
   );
 };
 
