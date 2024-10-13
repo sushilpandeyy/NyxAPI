@@ -43,4 +43,4 @@ async def fetch_data(full_path: str, request: Request, db: Session = Depends(get
     
     res = await get_response(db=db, endpoint=full_path, projid=projectid)
     
-    return {"msg": res}
+    return res
