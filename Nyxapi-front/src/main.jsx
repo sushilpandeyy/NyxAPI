@@ -15,19 +15,21 @@ import Endpoint from './components/apiEndpoint.jsx';
 import Layout from './pages/Layout.jsx';
 import Projects from './pages/Projects.jsx';
 import NotFound from './pages/404.jsx';
+import SharedWithMe from './pages/SharedWithMe.jsx';
 
 // Define router configuration
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<App />}> {/* Parent: App */}
-        <Route path="" element={<Homepage />} /> {/* Homepage */}
-        <Route path="auth" element={<Auth />} /> {/* Auth */}
+      <Route path="/" element={<App />}>  
+        <Route path="" element={<Homepage />} />  
+        <Route path="auth" element={<Auth />} /> 
       </Route>
 
-      <Route path="/dashboard" element={<Layout />}> {/* Parent: Dashboard layout */}
-        <Route path="" element={<Projects />} /> {/* Projects */}
-        <Route path="endpoints/:Projectid" element={<Endpoint />} /> {/* Endpoints */}
+      <Route path="/dashboard" element={<Layout />}> 
+        <Route path="" element={<Projects />} />  
+        <Route path="shared" element={<SharedWithMe/>}/>
+        <Route path="endpoints/:Projectid" element={<Endpoint />} />  
       </Route>
       <Route path="*" element={<NotFound />} /> 
     </>
