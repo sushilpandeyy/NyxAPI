@@ -2,11 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_db
 from app.schema.project_schema import Projectcreate, GetProject 
-from app.crud.share_crud import add_user_to_shared_crud, get_shared_emails_crud, remove_user_from_shared_crud
+from app.crud.share_crud import add_user_to_shared_crud, get_shared_emails_crud, remove_user_from_shared_crud, get_shared_projects_for_user
 from app.schema.share_schema import AddUserToSharedRequest
 
 shareroute = APIRouter()
 
+@shareroute.get("/")
+async def getsharedprojects(userid: int, db: AsyncSession = Depends(get_db)):
+    try:
+        response = await get_shared_projects_for_user(db=db, userid=userid)
+        return {"data": response}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error getting projects: {str(e)}")
 
 @shareroute.post("/")
 async def add_user_to_shared(input: AddUserToSharedRequest, db: AsyncSession = Depends(get_db)):

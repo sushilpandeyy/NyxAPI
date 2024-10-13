@@ -4,6 +4,7 @@ from app.models.user import Project, User  # Use the correct model name
 from fastapi import HTTPException
 import random
 from sqlalchemy import text
+from sqlalchemy.orm import selectinload
 
 async def add_user_to_shared_crud(db: AsyncSession, projectid: int, user_email: str):
     # Fetch the user by email
@@ -100,3 +101,18 @@ async def remove_user_from_shared_crud(db: AsyncSession, projectid: int, user_em
         return project
 
     raise HTTPException(status_code=400, detail="User ID not found in Shared array")
+
+async def get_shared_projects_for_user(db: AsyncSession, userid: int):
+    # Query to get projects where userid is in Shared and not the owner
+    result = await db.execute(
+        select(Project).where(
+            (Project.Shared.any(userid)) & (Project.UserID != userid)  # Ensure user is not owner
+        ).options(selectinload(Project.user))  # Optionally load related user data
+    )
+
+    projects = result.scalars().all()  # Fetch all matching projects
+
+    if not projects:
+        raise HTTPException(status_code=404, detail="No projects found shared with this user.")
+
+    return projects

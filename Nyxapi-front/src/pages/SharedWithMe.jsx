@@ -29,9 +29,10 @@ const SharedWithMe = () => {
   // Fetch projects for the given userId
   const fetchProjects = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/project/?userid=${userId}`);
-      if (response.data && response.data.Projects) {
-        setProjects(response.data.Projects); // Set the projects array from response
+      const response = await axios.get(`http://localhost:8000/share/?userid=${userId}`);
+      if (response.data) {
+        setProjects(response.data.data); // Set the projects array from response
+         
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
@@ -134,7 +135,8 @@ const SharedWithMe = () => {
                     <h3 className="text-lg font-semibold">{project.Title}</h3>
                   </div>
                   <p className="mt-2 text-sm text-gray-400">{project.Description}</p>
-                  <p className="mt-1 text-sm text-gray-400">Created: {new Date(project.created).toLocaleDateString()}</p>
+                  <p className="mt-1 text-sm text-gray-400">Created by: {project.user.name}</p>
+                  <p className="mt-1 text-sm text-gray-400">Created on: {new Date(project.created).toLocaleDateString()}</p>
                 </div>
               ))
             ) : (
