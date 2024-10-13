@@ -13,7 +13,8 @@ const EndpointSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [emails, setEmails] = useState([]);
-
+  
+  const userData = JSON.parse(sessionStorage.getItem('user'));
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
@@ -71,6 +72,7 @@ const EndpointSection = () => {
 
   // Fetch emails when the modal opens
   useEffect(() => {
+   
     if (isModalOpen) {
       const fetchEmails = async () => {
         try {
@@ -109,10 +111,31 @@ const EndpointSection = () => {
       }
     }
   };
+  const handleRemoveEmail = async (emailToRemove) => {
+    const confirmRemove = window.confirm(`Are you sure you want to remove ${emailToRemove}?`);
+    
+    if (confirmRemove) {
+      try {
+        const response = await axios.delete(`http://localhost:8000/share/remove`, {
+          params: {
+            projectid: projectId,
+            user_email: emailToRemove,
+          },
+        });
 
-  const handleRemoveEmail = (emailToRemove) => {
-    setEmails((prev) => prev.filter((email) => email !== emailToRemove));
-    // Optionally, make a DELETE request to remove the email from the server
+        if (response.status === 200) {
+          // Remove the email from the local state
+          setEmails((prev) => prev.filter((email) => email !== emailToRemove));
+          // Optionally show success message
+          toggleModal(); // Close the modal on success
+        } else {
+          setError('Failed to remove email.');
+        }
+      } catch (error) {
+        console.error('Error removing email:', error);
+        setError('Failed to remove email.');
+      }
+    }
   };
 
   return (
@@ -239,17 +262,19 @@ const EndpointSection = () => {
           <div className="mt-4">
             <h4 className="text-lg font-semibold text-white mb-2">Shared Emails:</h4>
             <ul className="list-disc list-inside">
-              {emails.map((emailItem) => (
-                <li key={emailItem} className="flex justify-between items-center text-gray-300">
-                  {emailItem}
-                  <button
-                    onClick={() => handleRemoveEmail(emailItem)}
-                    className="ml-2 text-red-500 hover:text-red-700"
-                  >
-                    ✖️
-                  </button>
-                </li>
-              ))}
+            {emails.map((emailItem) => (
+  emailItem !== userData.email && ( // Check if the email is not equal to userData.email
+    <li key={emailItem} className="flex justify-between items-center text-gray-300">
+      {emailItem}
+      <button
+        onClick={() => handleRemoveEmail(emailItem)}
+        className="ml-2 text-red-500 hover:text-red-700"
+      >
+        ✖️
+      </button>
+    </li>
+  )
+))}
             </ul>
           </div>
         </div>

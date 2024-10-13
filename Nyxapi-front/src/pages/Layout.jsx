@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
-import { Outlet, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { Sling as Hamburger } from 'hamburger-react';
 import { FiFolder, FiShare, FiHome, FiDollarSign, FiSettings } from 'react-icons/fi';
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const [name, setname]=useState("");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem('user'));
+    if (!sessionData) {
+      // If no session data, redirect to /auth
+      navigate('/auth');
+    }
+    else{
+      setname(sessionData.name)
+    }
+  }, [navigate]); // Add navigate to dependency array
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -20,7 +34,7 @@ const Layout = () => {
           <h1 className="text-xl font-bold">My Dashboard</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-sm">Welcome, User</span>
+          <span className="text-sm">Welcome, {name}</span>
           <button className="px-4 py-2 text-sm font-semibold bg-pink-600 rounded hover:bg-pink-700">
             Login
           </button>
