@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.models.user import Project  # Use the correct model name
+from app.models.user import Project, User  # Use the correct model name
 from fastapi import HTTPException
 import random
 
@@ -11,17 +11,24 @@ def generate_random_six_digit():
 
 # Function to create a new project
 async def create_project(db: AsyncSession, title: str, userid: int, Description: str, Img: str):
-    try: 
+    try:
         # Create a new Project instance
-        project = Project(Projectid=generate_random_six_digit(), Title=title, UserID=userid, Description=Description, Img=Img)
+        project = Project(
+            Projectid=generate_random_six_digit(),  # Assuming this function exists
+            Title=title,
+            UserID=userid,
+            Description=Description,
+            Img=Img,
+            Shared=[userid]  # Insert the user ID into the Shared array
+        )
         db.add(project)  # Add the project to the session
         await db.commit()  # Commit the transaction
         await db.refresh(project)  # Refresh the project instance with the latest data
 
         return project  # Return the created project
-    except Exception as e:
+    except SQLAlchemyError as e:
+        await db.rollback()  # Rollback the transaction in case of error
         raise HTTPException(status_code=400, detail=f"Error creating project: {str(e)}")
-
 
 # Function to get all projects for a specific user
 async def get_projects(db: AsyncSession, userid: int):
@@ -37,3 +44,4 @@ async def get_projects(db: AsyncSession, userid: int):
         return projects_list
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error in getting projects: {str(e)}")
+

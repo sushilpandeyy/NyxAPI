@@ -7,6 +7,7 @@ from app.config import engine, Base
 from app.routes.user_routes import userrouter
 from app.routes.project_routes import projectroutes
 from app.routes.endpoints_route import endpointroutes
+from app.routes.Share_route import shareroute
 
 app = FastAPI()
 
@@ -46,6 +47,8 @@ async def on_startup():
 app.include_router(userrouter, prefix="/users", tags=["Users"])
 app.include_router(projectroutes, prefix="/project", tags=["Project"])
 app.include_router(endpointroutes, prefix="/endpoints", tags=["Endpoint"])
+app.include_router(shareroute, prefix="/share", tags=["Collaboration"])
+
 
 # Root endpoint
 @app.get("/")

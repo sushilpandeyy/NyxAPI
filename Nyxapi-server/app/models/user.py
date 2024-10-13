@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, JSON, ARRAY
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.config import Base
@@ -28,6 +28,7 @@ class Project(Base):
     created = Column(DateTime, default=func.now(), nullable=False)
     Description = Column(String)
     Img = Column(String)
+    Shared = Column(ARRAY(Integer), nullable=True) 
 
     # Relationship to the User table
     user = relationship('User', back_populates='projects')
@@ -42,10 +43,11 @@ class Endpoint(Base):
     endpointid = Column(Integer, primary_key=True, index=True, autoincrement=True)
     Endpoint = Column(String, nullable=False)
     Projectid = Column(Integer, ForeignKey('projects.Projectid'), nullable=False)
+    Working = Column(Boolean, default=True)
+    Locked = Column(Integer, nullable=True)
+    project = relationship('Project', back_populates='endpoints')  
 
-    project = relationship('Project', back_populates='endpoints')  # Correct back_populates reference
-
-    Apitype = Column(String, nullable=True)   
+    Apitype = Column(ARRAY(String), nullable=True)   
     Payload = Column(String, nullable=True) 
 
     Created = Column(DateTime(timezone=True), server_default=func.now())

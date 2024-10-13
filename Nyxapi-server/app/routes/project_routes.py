@@ -20,3 +20,4 @@ async def getproject(userid: int, db: AsyncSession = Depends(get_db)):
     proje= await get_projects(db=db, userid=userid)
     print(proje)
     return {"User": userid , "Projects": proje}
+
