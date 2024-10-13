@@ -1,3 +1,4 @@
+import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.end import Endpoint 
@@ -17,6 +18,8 @@ async def get_response(db: AsyncSession, endpoint: str, projid: int):
     print("endpoint")
     print(endpoint_record)
     if endpoint_record:
-        return {"projectid": projid, "endpoint": endpoint, "data": endpoint_record}
+        # Parse the payload from string to JSON
+        payload = json.loads(endpoint_record.Payload)
+        return payload
     else:
         return {"error": "No matching record found for the given projectid and endpoint"}
