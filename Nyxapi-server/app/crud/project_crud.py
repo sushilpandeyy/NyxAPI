@@ -18,8 +18,7 @@ async def create_project(db: AsyncSession, title: str, userid: int, Description:
             Title=title,
             UserID=userid,
             Description=Description,
-            Img=Img,
-            Shared=[userid]  # Insert the user ID into the Shared array
+            Img=Img
         )
         db.add(project)  # Add the project to the session
         await db.commit()  # Commit the transaction

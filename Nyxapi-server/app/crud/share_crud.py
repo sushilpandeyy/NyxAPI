@@ -19,7 +19,7 @@ async def add_user_to_shared_crud(db: AsyncSession, projectid: int, user_email: 
     # Fetch the project by projectid
     project_result = await db.execute(select(Project).where(Project.Projectid == projectid))
     project = project_result.scalar_one_or_none()
-
+ 
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
 
