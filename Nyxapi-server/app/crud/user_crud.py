@@ -29,14 +29,14 @@ async def create_user(db: AsyncSession, name: str, email: str, password: str) ->
         await db.refresh(user)
 
         # Generate a token after user creation
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": user.email}, expires_delta=access_token_expires
-        )
+        # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        # access_token = create_access_token(
+        #     data={"sub": user.email}, expires_delta=access_token_expires
+        # )
         
         # Return token along with user data
         return {
-            "access_token": access_token,
+            "access_token": 123,
             "token_type": "bearer",
             "user": {
                 "email": user.email,
@@ -77,7 +77,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
             
             # Return token along with user data
             return {
-                "access_token": access_token,
+                "access_token": 123,
                 "token_type": "bearer",
                 "user": {
                     "email": user.email,

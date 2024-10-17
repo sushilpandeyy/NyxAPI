@@ -19,7 +19,7 @@ async def createendpoint(endpointdata: Endpoints, db: AsyncSession = Depends(get
     
     return {"msg": "Endpoint created", "endpoint_info": endpoint}
 
-@endpointroutes.get("/")
+@endpointroutes.get("/{projectid}")
 async def getendoints(projectid: int, db: AsyncSession = Depends(get_db)):
     endpoints= await get_endpoints(db=db, Projectid=projectid)
     return {"msg": "Endpoints Data", "Projectid": projectid,"endpoint_info": endpoints}

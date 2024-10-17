@@ -8,6 +8,7 @@ from app.routes.user_routes import userrouter
 from app.routes.project_routes import projectroutes
 from app.routes.endpoints_route import endpointroutes
 from app.routes.Share_route import shareroute
+from app.routes.websocket import websocketroutes
 
 app = FastAPI()
 
@@ -48,6 +49,9 @@ app.include_router(userrouter, prefix="/users", tags=["Users"])
 app.include_router(projectroutes, prefix="/project", tags=["Project"])
 app.include_router(endpointroutes, prefix="/endpoints", tags=["Endpoint"])
 app.include_router(shareroute, prefix="/share", tags=["Collaboration"])
+
+# Include websocket routes
+app.include_router(websocketroutes, prefix="/ws", tags=["websocket"])
 
 
 # Root endpoint
