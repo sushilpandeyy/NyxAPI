@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaUserFriends, FaEllipsisV } from 'react-icons/fa';
@@ -13,6 +13,7 @@ const EndpointSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [emails, setEmails] = useState([]);
+  const[enpoints, setEndpoints] = useState([]);
   
   const userData = JSON.parse(sessionStorage.getItem('user'));
   const toggleModal = () => {
@@ -68,10 +69,28 @@ const EndpointSection = () => {
     }
   };
 
+const fetchEndpointData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/endpoints/${projectIdInt}`);
+      const { msg, Projectid, endpoint_info } = response.data;
+
+      // Set the endpoint information in state
+      setEndpoints(endpoint_info);
+      setJsonData(endpoint_info.payload); // Set the JSON data in the input field
+      setError(''); // Clear any previous errors
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Failed to load endpoint information.'); // Set an error message
+    } finally {
+      setLoading(false); // Set loading to false after the request is complete
+    }
+  };
 
 
   // Fetch emails when the modal opens
   useEffect(() => {
+
+    fetchEndpointData();
    
     if (isModalOpen) {
       const fetchEmails = async () => {
@@ -86,7 +105,12 @@ const EndpointSection = () => {
 
       fetchEmails();
     }
-  }, [isModalOpen, projectIdInt]);
+  }, [isModalOpen, projectIdInt, Projectid]);
+
+
+
+
+
 
   const handleAddEmail = async (e) => {
     e.preventDefault();
@@ -118,7 +142,7 @@ const EndpointSection = () => {
       try {
         const response = await axios.delete(`http://localhost:8000/share/remove`, {
           params: {
-            projectid: projectId,
+            projectid: projectIdInt,
             user_email: emailToRemove,
           },
         });
@@ -218,9 +242,26 @@ const EndpointSection = () => {
           </div>
         )}
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-400">🔍 No resources yet...</p>
-        </div>
+
+        <div className="mt-8">
+
+          <h3 className="mb-2 text-xl font-semibold text-white">Endpoints:</h3>
+          <ul>
+            {enpoints.map((endpoint) => (
+              <li key={endpoint.id} className="flex items-center justify-between p-2 bg-gray-700 rounded-lg">
+                <span className="font-mono text-sm text-blue-800">
+                  http://{projectIdInt}.nyxapi.com/{endpoint.Endpoint}
+                </span>
+                <span className="text-sm text-gray-400">
+                  {endpoint.Payload}
+                </span>
+              </li>
+            ))}
+          </ul>
+          
+          </div>
+
+        
       </div>
     </div>
     {isModalOpen && (
@@ -280,15 +321,86 @@ const EndpointSection = () => {
         </div>
       </div>
     )}
+    
 
     </>
   );
 };
 
+
+const EndpointSectionforjson = () => {
+  const { Projectid } = useParams();
+  const [jsonData, setJsonData] = useState('{}'); // State to store the entered JSON data
+  const [error, setError] = useState(''); // Error state
+  const websocketRef = useRef(null); // Reference to the WebSocket connection
+
+  // Connect to the WebSocket when the component mounts
+  useEffect(() => {
+    const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}`;
+    console.log(`Connecting to WebSocket for project: ${Projectid}`);
+
+    websocketRef.current = new WebSocket(websocketUrl);
+
+    // Handle WebSocket messages
+    websocketRef.current.onmessage = (event) => {
+      try {
+        // Update the JSON data when received from the server
+        const newData = JSON.parse(event.data);
+        setJsonData(JSON.stringify(newData, null, 2)); // Pretty-print the JSON
+      } catch (err) {
+        console.error('Error parsing WebSocket message:', err);
+      }
+    };
+
+    websocketRef.current.onerror = (event) => {
+      console.error('WebSocket error:', event);
+      setError('WebSocket error');
+    };
+
+    websocketRef.current.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      // Close the WebSocket connection when the component unmounts
+      if (websocketRef.current) {
+        websocketRef.current.close();
+      }
+    };
+  }, [Projectid]);
+
+  // Handle changes in the JSON input
+  const handleJsonChange = (e) => {
+    const newJsonData = e.target.value;
+    setJsonData(newJsonData);
+
+    // Send the updated JSON to the WebSocket server
+    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      websocketRef.current.send(newJsonData);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-3xl p-8 bg-gray-800 rounded-lg">
+      <h2 className="text-2xl font-bold text-white mb-4">Edit JSON Data for Project {Projectid}</h2>
+      <textarea
+        value={jsonData}
+        onChange={handleJsonChange}
+        className="w-full h-96 p-4 bg-gray-900 text-white rounded-lg resize-none"
+      ></textarea>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
+    </div>
+  );
+};
+
+
+
+
 const EndpointScreen = () => {
   return (
     <>
       <EndpointSection />
+      <EndpointSectionforjson />
     </>
   );
 };
