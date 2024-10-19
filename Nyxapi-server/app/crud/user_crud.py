@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
-from app.models.user import User
+from app.models.user import User, Usage
 from passlib.context import CryptContext
 from typing import Optional, Dict
 from app.crud.jwt import create_access_token
@@ -28,11 +28,10 @@ async def create_user(db: AsyncSession, name: str, email: str, password: str) ->
         await db.commit()
         await db.refresh(user)
 
-        # Generate a token after user creation
-        # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        # access_token = create_access_token(
-        #     data={"sub": user.email}, expires_delta=access_token_expires
-        # )
+        usage = Usage(Userid=user.id, Project=0, Endpoints=0)
+        db.add(usage)
+        await db.commit()
+        await db.refresh(usage)
         
         # Return token along with user data
         return {

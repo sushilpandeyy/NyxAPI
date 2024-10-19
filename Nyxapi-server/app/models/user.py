@@ -13,6 +13,7 @@ class User(Base):
     email_verified = Column(Boolean, default=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
     updated = Column(DateTime(timezone=True), onupdate=func.now())
+    accounttype = Column(String, default="Basic" )
 
     # Relationship to the Project table
     projects = relationship('Project', back_populates='user')
@@ -51,4 +52,14 @@ class Endpoint(Base):
     Payload = Column(String, nullable=True) 
 
     Created = Column(DateTime(timezone=True), server_default=func.now())
+    Updated = Column(DateTime(timezone=True), onupdate=func.now())
+
+class Usage(Base):
+    __tablename__ = 'usage'
+    
+    Usageid = Column(Integer, primary_key=True, autoincrement=True)
+    Userid = Column(Integer, ForeignKey('users.id'))  # Changed VARCHAR to INTEGER
+    Project = Column(Integer)
+    Endpoints = Column(Integer)
+    Created = Column(DateTime(timezone=True), default=func.now())
     Updated = Column(DateTime(timezone=True), onupdate=func.now())
