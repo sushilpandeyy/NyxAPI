@@ -34,10 +34,12 @@ const Layout = () => {
           <h1 className="text-xl font-bold">My Dashboard</h1>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-sm">Welcome, {name}</span>
+          {(name)?
+          <span className="text-sm">Welcome, {name}</span>:
           <button className="px-4 py-2 text-sm font-semibold bg-pink-600 rounded hover:bg-pink-700">
             Login
           </button>
+}
         </div>
       </header>
 
@@ -52,7 +54,7 @@ const Layout = () => {
               <FiShare className="mr-2" />
               Shared with Me
             </Link>
-            <Link to="/usage" className="flex items-center px-4 py-2 text-white rounded hover:bg-gray-600">
+            <Link to="/dashboard/usage" className="flex items-center px-4 py-2 text-white rounded hover:bg-gray-600">
               <FiHome className="mr-2" />
               Usage
             </Link>
