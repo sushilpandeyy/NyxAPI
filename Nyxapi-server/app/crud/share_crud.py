@@ -116,3 +116,17 @@ async def get_shared_projects_for_user(db: AsyncSession, userid: int):
         raise HTTPException(status_code=404, detail="No projects found shared with this user.")
 
     return projects
+
+async def get_emails_by_initials(db: AsyncSession, name_initials: str):
+    # Ensure the input initials are in lowercase for consistent matching
+    initials = name_initials.lower()
+
+    # Query users whose name starts with the provided initials (case-insensitive)
+    user_result = await db.execute(
+        select(User.email).where(User.name.ilike(f'{initials}%'))
+    )
+
+    # Extract the emails from the result using scalars()
+    email_list = user_result.scalars().all()
+
+    return email_list
