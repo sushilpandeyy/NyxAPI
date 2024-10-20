@@ -54,11 +54,7 @@ const Layout = () => {
               <FiShare className="mr-2" />
               Shared with Me
             </Link>
-            <Link to="/dashboard/usage" className="flex items-center px-4 py-2 text-white rounded hover:bg-gray-600">
-              <FiHome className="mr-2" />
-              Usage
-            </Link>
-            <Link to="/billing" className="flex items-center px-4 py-2 text-white rounded hover:bg-gray-600">
+            <Link to="/dashboard/billing" className="flex items-center px-4 py-2 text-white rounded hover:bg-gray-600">
               <FiDollarSign className="mr-2" />
               Billing
             </Link>

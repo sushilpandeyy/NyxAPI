@@ -46,6 +46,7 @@ async def create_user(db: AsyncSession, name: str, email: str, password: str) ->
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error creating user: {str(e)}")
 
+
 async def get_user_by_email(db: AsyncSession, email: str) -> Optional[User]:
     stmt = select(User).filter(User.email == email)
     result = await db.execute(stmt)

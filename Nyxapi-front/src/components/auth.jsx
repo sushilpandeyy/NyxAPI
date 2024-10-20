@@ -2,41 +2,32 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true); // Toggle between login and signup
-  const [name, setName] = useState(''); // New state for name in signup
+  const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      // Prepare request body
-      let requestBody;
-      let endpoint;
-      
-      if (isLogin) {
-        // If login, prepare login request
-        requestBody = { email, password };
-        endpoint = 'http://localhost:8000/users/authenticate/';
-      } else {
-        // If sign-up, prepare sign-up request
-        requestBody = { name, email, password };
-        endpoint = 'http://localhost:8000/users/';
-      }
+    setError(''); // Clear previous errors
 
-      // Make the request to the FastAPI backend
+    try {
+      const requestBody = isLogin
+        ? { email, password }
+        : { name, email, password };
+
+      const endpoint = isLogin
+        ? 'http://localhost:8000/users/authenticate/'
+        : 'http://localhost:8000/users/';
+
       const response = await axios.post(endpoint, requestBody);
 
       if (response.data && response.data.user) {
-        // Save the token and user data in session storage
         const { access_token, user } = response.data.user;
         sessionStorage.setItem('token', access_token);
         sessionStorage.setItem('user', JSON.stringify(user));
-
-        // Redirect to the dashboard or another page after successful login/signup
-        window.location.href = '/dashboard'; // Change '/dashboard' to your protected route
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       setError(isLogin ? 'Login failed. Please check your credentials and try again.' : 'Sign up failed. Please try again.');
@@ -61,9 +52,8 @@ const Auth = () => {
 
           <div className="flex flex-col items-center justify-center px-6 py-10">
             <form className="w-full max-w-md space-y-4" onSubmit={handleSubmit}>
-              {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
-              
-              {/* Conditionally render the Fullname input only for Signup */}
+              {error && <p className="text-red-500">{error}</p>}
+
               {!isLogin && (
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-400">Name</label>
@@ -89,6 +79,7 @@ const Auth = () => {
                   required
                 />
               </div>
+
               <div>
                 <label className="block mb-1 text-sm font-medium text-gray-400">Password</label>
                 <input
@@ -100,6 +91,7 @@ const Auth = () => {
                   required
                 />
               </div>
+
               <button
                 type="submit"
                 className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -127,8 +119,7 @@ const Auth = () => {
               </button>
             </div>
 
-            {/* Toggle between login and signup views */}
-            <p className='mt-4 text-center text-white'>
+            <p className="mt-4 text-center text-white">
               {isLogin ? (
                 <>
                   Don't have an account?{' '}

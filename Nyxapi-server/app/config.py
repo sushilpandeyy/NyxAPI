@@ -10,7 +10,7 @@ load_dotenv()
 # Retrieve the database URL from the environment variables
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Create async engine without SSL configuration
+# Create async engine
 engine = create_async_engine(
     DATABASE_URL,
     echo=True  # Echo SQL statements for debugging purposes
@@ -18,19 +18,16 @@ engine = create_async_engine(
 
 # Configure the sessionmaker for creating async database sessions
 SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
     bind=engine,
-    class_=AsyncSession  # Use AsyncSession for async support
+    class_=AsyncSession,  # Use AsyncSession for async support
+    expire_on_commit=False  # Prevents loading the instance again from the database after commit
 )
 
 # Create a base class for ORM models
 Base = declarative_base()
 
 # Dependency to provide a database session for FastAPI routes or other async tasks
-async def get_db():
+async def get_db() -> AsyncSession:
     async with SessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()  # Ensure session is closed after use
+        yield session  # Yielding the session for use in a route
+        # No need for session.close() here; it's handled by async with context manager

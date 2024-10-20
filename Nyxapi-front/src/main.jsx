@@ -31,7 +31,7 @@ const router = createBrowserRouter(
         <Route path="" element={<Projects />} />  
         <Route path="shared" element={<SharedWithMe/>}/>
         <Route path="endpoints/:Projectid" element={<Endpoint />} />  
-        <Route path="usage" element={<Usage/>} />
+        <Route path="billing" element={<Usage/>} />
       </Route>
       <Route path="*" element={<NotFound />} /> 
     </>
