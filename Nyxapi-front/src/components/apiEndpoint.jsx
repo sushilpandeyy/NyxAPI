@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaUserFriends, FaEllipsisV } from 'react-icons/fa';
 import nyxLogo from '../assets/nyxLogo.webp';
+import CollborateModal from './CollborateModal';
 
 const EndpointSection = () => {
   const { Projectid } = useParams(); // Retrieve 'Projectid' from the URL
@@ -11,8 +12,6 @@ const EndpointSection = () => {
   const [jsonData, setJsonData] = useState(''); // State to store the entered JSON data
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [emails, setEmails] = useState([]);
   const[enpoints, setEndpoints] = useState([]);
   
   const userData = JSON.parse(sessionStorage.getItem('user'));
@@ -106,61 +105,6 @@ const fetchEndpointData = async () => {
       fetchEmails();
     }
   }, [isModalOpen, projectIdInt, Projectid]);
-
-
-
-
-
-
-  const handleAddEmail = async (e) => {
-    e.preventDefault();
-    if (email) {
-      try {
-        const response = await axios.post('http://localhost:8000/share/', {
-          projectid: projectIdInt,
-          email,
-        });
-
-        if (response.status === 200) {
-          // Add the email to the list
-          setEmails((prev) => [...prev, email]);
-          setEmail(''); // Clear input field
-          toggleModal(); // Close the modal
-        } else {
-          setError('Failed to add email.');
-        }
-      } catch (error) {
-        console.error('Error adding email:', error);
-        setError('Failed to add email.');
-      }
-    }
-  };
-  const handleRemoveEmail = async (emailToRemove) => {
-    const confirmRemove = window.confirm(`Are you sure you want to remove ${emailToRemove}?`);
-    
-    if (confirmRemove) {
-      try {
-        const response = await axios.delete(`http://localhost:8000/share/remove`, {
-          params: {
-            projectid: projectIdInt,
-            user_email: emailToRemove,
-          },
-        });
-
-        if (response.status === 200) {
-          // Remove the email from the local state
-          setEmails((prev) => prev.filter((email) => email !== emailToRemove));
-          // Optionally show success message
-          toggleModal(); // Close the modal on success
-        } else {
-          setError('Failed to remove email.');
-        }
-      } catch (error) {
-        console.error('Error removing email:', error);
-        setError('Failed to remove email.');
-      }
-    }
-  };
 
   return (
     <>
@@ -265,61 +209,7 @@ const fetchEndpointData = async () => {
       </div>
     </div>
     {isModalOpen && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-gray-800 p-6 rounded-lg w-1/3">
-          <h3 className="text-xl font-semibold text-white mb-4">Add Collaborator</h3>
-          <form onSubmit={handleAddEmail}>
-            <div className="mb-4">
-              <label className="block text-gray-400">Email ID</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 mt-1 bg-gray-700 text-white rounded focus:outline-none"
-                required
-              />
-            </div>
-
-            {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
-
-            <div className="flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={toggleModal}
-                className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
-              >
-                Add
-              </button>
-            </div>
-          </form>
-
-          {/* Display list of shared emails */}
-          <div className="mt-4">
-            <h4 className="text-lg font-semibold text-white mb-2">Shared Emails:</h4>
-            <ul className="list-disc list-inside">
-            {emails.map((emailItem) => (
-  emailItem !== userData.email && ( // Check if the email is not equal to userData.email
-    <li key={emailItem} className="flex justify-between items-center text-gray-300">
-      {emailItem}
-      <button
-        onClick={() => handleRemoveEmail(emailItem)}
-        className="ml-2 text-red-500 hover:text-red-700"
-      >
-        ✖️
-      </button>
-    </li>
-  )
-))}
-            </ul>
-          </div>
-        </div>
-      </div>
+     <CollborateModal toggleModal={toggleModal} /> 
     )}
     
 
