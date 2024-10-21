@@ -11,6 +11,7 @@ def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    print(f"Plain password: {plain_password}, Hashed password: {hashed_password}")
     return pwd_context.verify(plain_password, hashed_password)
 
 async def create_user(db: AsyncSession, name: str, email: str, password: str) -> Dict:
@@ -49,6 +50,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
     try:
         # Fetch user from the database
         user = await get_user_by_email(db, email)
+        print(user.password)
         
         # Verify password
         if user and verify_password(password, user.password):
