@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import nyx from '../assets/nyxLogo.webp';  // Importing the default template image
+import Createproject from '../components/createproject';
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
@@ -26,26 +27,6 @@ const Projects = () => {
       window.location.href = '/login';
     }
   }, []);
-
-  // Fetch projects for the given userId
-  const fetchProjects = async (userId) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/project/?userid=${userId}`);
-      if (response.data && response.data.Projects) {
-        setProjects(response.data.Projects); // Set the projects array from response
-      }
-    } catch (err) {
-      console.error('Error fetching projects:', err);
-      setError('Failed to fetch projects.');
-    }
-  };
-
-  // Function to toggle modal visibility
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  // Function to handle form submission (for creating a project)
   const handleCreateProject = async (e) => {
     e.preventDefault();
 
@@ -83,6 +64,27 @@ const Projects = () => {
       setError('Failed to create project. Please try again.');
     }
   };
+
+  // Fetch projects for the given userId
+  const fetchProjects = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/project/?userid=${userId}`);
+      if (response.data && response.data.Projects) {
+        setProjects(response.data.Projects); // Set the projects array from response
+      }
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError('Failed to fetch projects.');
+    }
+  };
+
+  // Function to toggle modal visibility
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  // Function to handle form submission (for creating a project)
+  
 
   // Function to handle image upload
   const handleImageUpload = (e) => {
@@ -180,61 +182,7 @@ const Projects = () => {
 
       {/* Modal for creating project */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-800 p-6 rounded-lg w-1/3">
-            <h3 className="text-xl font-semibold text-white mb-4">Create New Project</h3>
-            <form onSubmit={handleCreateProject}>
-              <div className="mb-4">
-                <label className="block text-gray-400">Title</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 mt-1 bg-gray-700 text-white rounded focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-gray-400">Description</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 mt-1 bg-gray-700 text-white rounded focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-gray-400">Upload Image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="block w-full mt-1 text-white"
-                />
-              </div>
-
-              {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={toggleModal}
-                  className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
-                >
-                  Create
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <Createproject toggleModal={toggleModal} />
       )}
     </>
   );
