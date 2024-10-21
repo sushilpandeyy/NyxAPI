@@ -5,12 +5,15 @@ from app.models.user import User, Usage
 from passlib.context import CryptContext
 from typing import Optional, Dict
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Update the hashing context to use Argon2
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def hash_password(password: str) -> str:
+    """Hashes a password using Argon2."""
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifies a plain password against a hashed password."""
     print(f"Plain password: {plain_password}, Hashed password: {hashed_password}")
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -50,10 +53,13 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
     try:
         # Fetch user from the database
         user = await get_user_by_email(db, email)
-        print(user.password)
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        print(f"Fetched hashed password for user {user.email}: {user.password}")
         
         # Verify password
-        if user and verify_password(password, user.password):
+        if verify_password(password, user.password):
             # Return user data directly without token
             return {
                 "user": {
