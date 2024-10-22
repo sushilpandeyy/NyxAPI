@@ -6,6 +6,10 @@ class Projectcreate(BaseModel):
     Description: str
     Img: str
 
+    class Config:
+        orm_mode = True
+
+
 class GetProject(BaseModel):
     userid: int
 

@@ -14,6 +14,7 @@ def generate_random_six_digit():
 async def create_project(db: AsyncSession, title: str, userid: int, Description: str, Img: str):
     try:
         # Create a new Project instance
+        print(title,userid,Description,Img)
         project = Project(
             Projectid=generate_random_six_digit(),  # Assuming this function exists
             Title=title,

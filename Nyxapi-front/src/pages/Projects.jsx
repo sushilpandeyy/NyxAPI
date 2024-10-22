@@ -71,6 +71,7 @@ const Projects = () => {
       const response = await axios.get(`http://localhost:8000/project/?userid=${userId}`);
       if (response.data && response.data.Projects) {
         setProjects(response.data.Projects); // Set the projects array from response
+        console.log(response.data.Projects)
       }
     } catch (err) {
       console.error('Error fetching projects:', err);

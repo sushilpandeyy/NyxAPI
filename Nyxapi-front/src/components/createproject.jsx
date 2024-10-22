@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Client, Storage, ID } from "appwrite"; // Import Appwrite SDK
 import axios from 'axios';
 
@@ -15,49 +15,95 @@ const CreateProject = ({ toggleModal }) => {
     const [image, setImage] = useState(null);
     const [imageUrl, setImageUrl] = useState('');
     const [error, setError] = useState('');
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState(null); // Set userId accordingly
+    const [loading, setLoading] = useState(false); // Loading state
+    const [imageLoading, setImageLoading] = useState(false); // Loading state for image upload
+    const [token, setToken] = useState(''); // Token for authorization
+
+    useEffect(() => {
+        // Retrieve user data from sessionStorage
+        const userData = sessionStorage.getItem('user');
+        const storedToken = sessionStorage.getItem('token'); // Retrieve token from sessionStorage
+
+        if (userData) {
+            const user = JSON.parse(userData);
+            console.log(user.user_id); // Log userId
+            setUserId(user.user_id); // Set userId state
+            setToken(storedToken); // Set token state
+        } else {
+            setError('User is not authenticated.');
+        }
+    }, []); // Run only once when the component mounts
 
     const handleCreateProject = async (e) => {
         e.preventDefault();
+        setLoading(true);
+
+        // Update formData with the current component state
         const formData = {
-            title,
+            title: title,
             userid: userId,
             Description: description,
-            Img: imageUrl,
+            Img: imageUrl  // use imageUrl from state after the image is uploaded
         };
 
+        console.log("Sending project data:", formData);  // Log the data being sent
+
         try {
-            const token = sessionStorage.getItem('token');
-            const response = await axios.post('http://localhost:8000/project/', formData, {
+            const response = await fetch("http://localhost:8000/project/", {
+                method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,  // Assuming you have token-based auth
                 },
+                body: JSON.stringify(formData),  // Send the correct project data
             });
-            if (response.data && response.data.project_info) {
-                console.log('Project created:', response.data.project_info);
-                toggleModal();
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError('Failed to create project. Please try again.');
+                console.error("Error response from server:", errorData);
+            } else {
+                const data = await response.json();
+                console.log("Project created:", data);
+                setError('');  // Clear any previous error
+                toggleModal();  // Close the modal
+                window.location.reload(); // Reload the page
             }
-        } catch (err) {
-            console.error('Error creating project:', err);
-            setError('Failed to create project. Please try again.');
+        } catch (error) {
+            console.error("Error creating project:", error);
+            setError('An error occurred. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
+        const file = e.target.files[0]; // Get the selected file
+        
+        if (!file) {
+            setError('No file selected.');
+            return;
+        }
+
         setImage(file);
+        setImageLoading(true); // Set image loading state
 
         try {
             const promise = await storage.createFile(
-                "67149cce000047ac5262",
+                "67149cce000047ac5262", // Your bucket ID
                 ID.unique(),
                 file
             );
             console.log(promise);
-            setImageUrl("https://cloud.appwrite.io/v1/storage/buckets/67149cce000047ac5262/files/"+promise.$id+"/view?project=6701847e00238051af38");
+            setImageUrl(
+                `https://cloud.appwrite.io/v1/storage/buckets/67149cce000047ac5262/files/${promise.$id}/view?project=6701847e00238051af38`
+            );
         } catch (error) {
             console.error('Error uploading image:', error);
-            setError('Failed to upload image.');
+            setError('Failed to upload image. Please try again.'); // Update error message
+        } finally {
+            setImageLoading(false); // Reset loading state after upload
         }
     };
 
@@ -103,17 +149,21 @@ const CreateProject = ({ toggleModal }) => {
                         >
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
-                        >
-                            Create
-                        </button>
+                        {/* Show Create button only if the image has been uploaded */}
+                        {imageUrl && (
+                            <button
+                                type="submit"
+                                className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                                disabled={loading || imageLoading} // Disable button when loading
+                            >
+                                {loading ? 'Creating...' : 'Create'}
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>
         </div>
     );
-}
+};
 
 export default CreateProject;
