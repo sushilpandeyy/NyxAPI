@@ -14,13 +14,14 @@ def hash_password(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifies a plain password against a hashed password."""
-    print(f"Plain password: {plain_password}, Hashed password: {hashed_password}")
+    # print(f"Plain password: {plain_password}, Hashed password: {hashed_password}")
     return pwd_context.verify(plain_password, hashed_password)
 
 async def create_user(db: AsyncSession, name: str, email: str, password: str) -> Dict:
     try:
         # Hash the password for PostgreSQL
         hashed_password = hash_password(password)
+        print(f"Hashed password: {hashed_password}")
 
         # Create user in PostgreSQL
         user = User(name=name, email=email, password=hashed_password)
@@ -42,6 +43,7 @@ async def create_user(db: AsyncSession, name: str, email: str, password: str) ->
             }
         }
     except Exception as e:
+        print(f"Error creating user: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error creating user: {str(e)}")
 
 async def get_user_by_email(db: AsyncSession, email: str) -> Optional[User]:

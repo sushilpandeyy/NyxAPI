@@ -12,11 +12,11 @@ async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db))
     name = user_data.name
     email = user_data.email
     password = user_data.password
-    
     # Ensure you await asynchronous functions
     existing_user = await user_crud.get_user_by_email(db, email)
     
     if existing_user:
+        print("User already exists")
         raise HTTPException(status_code=400, detail="Email already registered")
     
     # Await the asynchronous create_user function
