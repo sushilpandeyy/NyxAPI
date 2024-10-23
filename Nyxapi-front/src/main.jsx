@@ -17,6 +17,7 @@ import Projects from './pages/Projects.jsx';
 import NotFound from './pages/404.jsx';
 import SharedWithMe from './pages/SharedWithMe.jsx';
 import Usage from './pages/Usage.jsx';
+import SavedEndpoints from './components/SavedEndpoints.jsx';
 
 // Define router configuration
 const router = createBrowserRouter(
@@ -34,6 +35,7 @@ const router = createBrowserRouter(
         <Route path="billing" element={<Usage/>} />
       </Route>
       <Route path="*" element={<NotFound />} /> 
+      <Route path="/saved" element={<SavedEndpoints />} /> 
     </>
   )
 );
