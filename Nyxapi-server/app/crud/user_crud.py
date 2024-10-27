@@ -20,11 +20,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 async def create_user(db: AsyncSession, name: str, email: str, password: str) -> Dict:
     try:
         # Hash the password for PostgreSQL
-        hashed_password = hash_password(password)
-        print(f"Hashed password: {hashed_password}")
+       # hashed_password = hash_password(password)
+        #print(f"Hashed password: {hashed_password}")
 
         # Create user in PostgreSQL
-        user = User(name=name, email=email, password=hashed_password)
+        user = User(name=name, email=email, password=password)
         db.add(user)
         await db.commit()
         await db.refresh(user)
@@ -61,7 +61,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
         print(f"Fetched hashed password for user {user.email}: {user.password}")
         
         # Verify password
-        if verify_password(password, user.password):
+        if (password==user.password):
             # Return user data directly without token
             return {
                 "user": {

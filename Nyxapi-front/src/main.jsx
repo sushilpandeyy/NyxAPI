@@ -18,6 +18,7 @@ import NotFound from './pages/404.jsx';
 import SharedWithMe from './pages/SharedWithMe.jsx';
 import Usage from './pages/Usage.jsx';
 import SavedEndpoints from './components/SavedEndpoints.jsx';
+import EndpointScreen from './pages/Endpoints.jsx';
 
 // Define router configuration
 const router = createBrowserRouter(
@@ -31,7 +32,7 @@ const router = createBrowserRouter(
       <Route path="/dashboard" element={<Layout />}> 
         <Route path="" element={<Projects />} />  
         <Route path="shared" element={<SharedWithMe/>}/>
-        <Route path="endpoints/:Projectid" element={<Endpoint />} />  
+        <Route path="endpoints/:Projectid" element={<EndpointScreen />} />  
         <Route path="billing" element={<Usage/>} />
       </Route>
       <Route path="*" element={<NotFound />} /> 
