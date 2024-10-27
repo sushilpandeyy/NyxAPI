@@ -18,8 +18,8 @@ const Auth = () => {
         : { name, email, password };
 
       const endpoint = isLogin
-        ? 'http://localhost:8000/users/authenticate/'
-        : 'http://localhost:8000/users/';
+        ? 'http://52.66.241.159/users/authenticate/'
+        : 'http://52.66.241.159/users/';
 
       const response = await axios.post(endpoint, requestBody);
 

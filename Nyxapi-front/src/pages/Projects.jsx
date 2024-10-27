@@ -49,7 +49,7 @@ const Projects = () => {
     try {
       // Include the token in the request headers for authentication
       const token = sessionStorage.getItem('token');
-      const response = await axios.post('http://localhost:8000/project/', formData, {
+      const response = await axios.post('http://52.66.241.159/project/', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -68,7 +68,7 @@ const Projects = () => {
   // Fetch projects for the given userId
   const fetchProjects = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/project/?userid=${userId}`);
+      const response = await axios.get(`http://52.66.241.159/project/?userid=${userId}`);
       if (response.data && response.data.Projects) {
         setProjects(response.data.Projects); // Set the projects array from response
         console.log(response.data.Projects)
