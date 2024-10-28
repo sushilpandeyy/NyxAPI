@@ -16,7 +16,7 @@
 // Endpoints.js
 import React from 'react';
 import CreateEndpoint from '../components/CreateEndpoint';
-import EndpointList from '../components/EndpointList';
+import EndpointList from '../components/Endpointlist';
 
 const Endpoints = () => {
   return (

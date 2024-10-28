@@ -33,6 +33,7 @@ const EndpointList = () => {
     fetchEndpointData();
   }, [projectIdInt]);
 
+  // Adjust toggle function to use endpointid instead of id
   const toggleEndpointEditor = (endpointId) => {
     setExpandedEndpoint(expandedEndpoint === endpointId ? null : endpointId);
   };
@@ -59,13 +60,13 @@ const EndpointList = () => {
                 http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
               </Link>
               <button
-                onClick={() => toggleEndpointEditor(endpoint.id)}
+                onClick={() => toggleEndpointEditor(endpoint.endpointid)}  // Use endpointid here
                 className="text-gray-400 hover:text-white cursor-pointer"
               >
-                {expandedEndpoint === endpoint.id ? <FaChevronUp /> : <FaChevronDown />}
+                {expandedEndpoint === endpoint.endpointid ? <FaChevronUp /> : <FaChevronDown />}
               </button>
             </div>
-            {expandedEndpoint === endpoint.id && (
+            {expandedEndpoint === endpoint.endpointid && (  // Check expandedEndpoint against endpointid
               <div className="p-4">
                 <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.endpointid)} initialPayload={endpoint.Payload} />
               </div>
@@ -74,14 +75,14 @@ const EndpointList = () => {
         ))}
       </div>
 
-      <div className="mt-8">
+    {/** <div className="mt-8">
         <button
           onClick={toggleJsonInputVisibility}
           className="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
         >
           {isJsonInputVisible ? 'Hide JSON Input' : 'Add New Endpoint'}
         </button>
-      </div>
+      </div>*/}
 
       {isJsonInputVisible && (
         <div className="mt-6 bg-gray-700 p-4 rounded-md shadow-md">

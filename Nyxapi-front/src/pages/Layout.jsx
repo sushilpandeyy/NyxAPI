@@ -85,19 +85,15 @@ const Layout = () => {
         {/* Sidebar and main content */}
         <aside className={`w-64 bg-gray-800 p-6 transition-transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
           <nav className="space-y-4">
-            <Link to="/" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/dashboard" className="flex items-center text-white hover:text-gray-300">
               <FiHome className="mr-2" />
               Home
-            </Link>
-            <Link to="/dashboard" className="flex items-center text-white hover:text-gray-300">
-              <FiFolder className="mr-2" />
-              Projects
             </Link>
             <Link to="/shared" className="flex items-center text-white hover:text-gray-300">
               <FiShare className="mr-2" />
               Share
             </Link>
-            <Link to="/payments" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/billing" className="flex items-center text-white hover:text-gray-300">
               <FiDollarSign className="mr-2" />
               Payments
             </Link>
