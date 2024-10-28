@@ -6,7 +6,7 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
   const [error, setError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
   const websocketRef = useRef(null);
-  console.log(endpointId)
+  console.log(endpointId);
 
   useEffect(() => {
     const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}/${endpointId}`;
@@ -36,6 +36,14 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
     };
   }, [Projectid, endpointId]);
 
+  const sanitizeInput = (input) => {
+    return input.replace(/"/g, '[[DQ]]'); // Replace double quotes with placeholder
+  };
+
+  const restoreOutput = (output) => {
+    return output.replace(/\[\[DQ\]\]/g, '"'); // Restore placeholder back to double quotes
+  };
+
   const handleJsonChange = (e) => {
     const newJsonData = e.target.value;
     setJsonData(newJsonData);
@@ -47,7 +55,8 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
 
   const handleSave = async () => {
     try {
-      const payload = { payload: jsonData };
+      const sanitizedJsonData = sanitizeInput(jsonData); // Sanitize before saving
+      const payload = { payload: sanitizedJsonData };
       await axios.put(`http://localhost:8000/endpoints/update_payload/${parseInt(endpointId)}`, payload);
       setSaveStatus('Data saved successfully!');
       setError('');
@@ -57,26 +66,28 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
     }
   };
 
+  // Restore the output when loading data into the editor
+  const restoredJsonData = restoreOutput(jsonData);
+
   return (
     <div className="w-full max-w-3xl p-8 bg-gray-800 rounded-lg">
-      <h2 className="text-xl font-semibold text-white mb-4">Edit JSON Data for Endpoint {endpointId}</h2>
-      
+      <h2 className="text-white text-lg font-bold mb-4">JSON Editor</h2>
       <textarea
-        value={jsonData}
+        value={restoredJsonData}
         onChange={handleJsonChange}
-        rows="8"
-        className="w-full h-40 p-4 bg-gray-900 text-white rounded-lg resize-none"
-      ></textarea>
-      
-      <button
-        onClick={handleSave}
-        className="mt-4 px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700"
-      >
-        Save
-      </button>
-
-      {saveStatus && <p className="text-green-400 mt-2">{saveStatus}</p>}
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+        rows={10}
+        className="w-full p-2 rounded-md bg-gray-900 text-white border border-gray-600"
+      />
+      <div className="flex justify-between mt-4">
+        <button
+          onClick={handleSave}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
+        >
+          Save
+        </button>
+        {error && <p className="text-red-500">{error}</p>}
+        {saveStatus && <p className="text-green-500">{saveStatus}</p>}
+      </div>
     </div>
   );
 };

@@ -24,6 +24,7 @@ const EndpointList = () => {
       try {
         const response = await axios.get(`http://52.66.241.159/endpoints/${projectIdInt}`);
         setEndpoints(response.data.endpoint_info);
+        console.log(response.data)
       } catch (err) {
         setError('Failed to load endpoint information.');
       }
@@ -33,6 +34,7 @@ const EndpointList = () => {
   }, [projectIdInt]);
 
   const toggleEndpointEditor = (endpointId) => {
+    console.log(endpoints)
     setExpandedEndpoint(expandedEndpoint === endpointId ? null : endpointId);
   };
 
@@ -52,7 +54,7 @@ const EndpointList = () => {
 
       <div className="space-y-4">
         {endpoints.map((endpoint) => (
-          <div key={endpoint.id} className="bg-gray-700 rounded-md shadow-md">
+          <div key={endpoint.endpointid} className="bg-gray-700 rounded-md shadow-md">
             <div className="flex justify-between items-center p-4">
               <Link to={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
                 http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
@@ -66,7 +68,7 @@ const EndpointList = () => {
             </div>
             {expandedEndpoint === endpoint.id && (
               <div className="p-4">
-                <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.id)} />
+                <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.endpointid)} />
               </div>
             )}
           </div>

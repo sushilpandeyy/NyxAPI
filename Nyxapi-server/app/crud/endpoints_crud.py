@@ -1,10 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from app.models.user import Endpoint, Usage, Project    
 from app.crud.usage_crud import fetch_projects_quant
 from fastapi import HTTPException
 from pydantic import Json
 from termcolor import cprint
+from sqlalchemy.exc import SQLAlchemyError
 
 async def create_endpoint(db: AsyncSession, endpoint_str: str, projectid: int, apitype: str, payload: str):
     try:
@@ -54,38 +56,28 @@ async def get_endpoints(db: AsyncSession, Projectid: int):
         raise HTTPException(status_code=400, detail=f"Error in getting endpoints: {str(e)}")
 
 async def update_endpoint_payload(db: AsyncSession, endpoint_id: int, new_payload: str):
-    """
-    Updates the payload of an existing endpoint by endpoint ID.
-    
-    Args:
-        db (AsyncSession): Database session.
-        endpoint_id (int): ID of the endpoint to update.
-        new_payload (str): The new payload to set for the endpoint.
-    
-    Returns:
-        Endpoint: The updated endpoint object.
-    """
     try:
-        # Fetch the endpoint by ID
-        query = select(Endpoint).where(Endpoint.id == endpoint_id)
+        print(f"Attempting to fetch endpoint with ID {endpoint_id}")
+        query = select(Endpoint).where(Endpoint.endpointid == endpoint_id)
         result = await db.execute(query)
         endpoint = result.scalar_one_or_none()
         
-        # Check if the endpoint exists
         if endpoint is None:
-            cprint(f"Endpoint with ID {endpoint_id} not found", 'red')
+            print(f"Endpoint with ID {endpoint_id} not found")
             raise HTTPException(status_code=404, detail="Endpoint not found")
-
-        # Update the payload
+        
+        print(f"Fetched endpoint: {endpoint}")
+        print(f"Updating payload to: {new_payload}")
+        
         endpoint.Payload = new_payload
         await db.commit()
         await db.refresh(endpoint)
-
-        cprint(f"Endpoint {endpoint_id} payload updated successfully!", 'green')
+        
+        print(f"Endpoint {endpoint_id} payload updated to: {endpoint.Payload}")
         
         return endpoint
 
     except SQLAlchemyError as e:
         await db.rollback()
-        cprint(f"Error updating Endpoint payload: {str(e)}", 'red')
+        print(f"Database error during payload update: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error updating Endpoint payload: {str(e)}")

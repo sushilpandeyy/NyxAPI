@@ -31,13 +31,21 @@ async def update_payload(
     db: AsyncSession = Depends(get_db)
 ):
     try:
+        print(f"Received request to update payload for endpoint ID {endpoint_id}")
+        print(f"New payload: {request.payload}")
+        
         updated_endpoint = await update_endpoint_payload(db=db, endpoint_id=endpoint_id, new_payload=request.payload)
+        
+        print(f"Successfully updated payload for endpoint ID {endpoint_id}")
         return {
             "msg": "Endpoint payload updated successfully",
             "endpoint_id": endpoint_id,
             "updated_endpoint": updated_endpoint
         }
     except HTTPException as e:
+        print(f"HTTPException raised: {e.detail}")
         raise e
     except Exception as e:
+        print(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
