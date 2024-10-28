@@ -44,21 +44,27 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
     }
   };
 
-  // Function to sanitize input by replacing double quotes with [[DQ]]
+  // Function to sanitize input by replacing double quotes, colons, and commas
   const sanitizeInput = (input) => {
-    return input.replace(/"/g, '[[DQ]]');
+    return input
+      .replace(/"/g, '[[DQ]]')        // Replace double quotes
+      .replace(/:/g, '[[COLON]]')     // Replace colons
+      .replace(/,/g, '[[COMMA]]');    // Replace commas
   };
 
-  // Function to restore output by replacing [[DQ]] back to double quotes
+  // Function to restore output by replacing placeholders back to their original characters
   const restoreOutput = (output) => {
-    return output.replace(/\[\[DQ\]\]/g, '"');
+    return output
+      .replace(/\[\[DQ\]\]/g, '"')     // Restore double quotes
+      .replace(/\[\[COLON\]\]/g, ':')  // Restore colons
+      .replace(/\[\[COMMA\]\]/g, ','); // Restore commas
   };
 
   const handleSave = async () => {
     try {
       const sanitizedPayload = sanitizeInput(jsonData); // Sanitize before saving
       const payload = { payload: sanitizedPayload };
-      
+
       await axios.put(`http://localhost:8000/endpoints/update_payload/${parseInt(endpointId)}`, payload);
       setSaveStatus('Data saved successfully!');
       setError('');
