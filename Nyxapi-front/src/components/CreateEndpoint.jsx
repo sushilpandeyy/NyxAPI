@@ -55,7 +55,7 @@ const CreateEndpoint = () => {
       <div className="flex gap-4">
         <button
           onClick={handleCreateEndpoint}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-blue-700"
         >
           Create Endpoint
         </button>

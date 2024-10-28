@@ -5,6 +5,8 @@ import { FaUserFriends, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import nyxLogo from '../assets/nyxLogo.webp';
 import CollborateModal from './CollborateModal';
 import EndpointJsonEditor from './Endpointsjson';
+import CopyButton from './Copybutton';
+import OpenUrlButton from './Openlink';
 
 const EndpointList = () => {
   const { Projectid } = useParams();
@@ -59,9 +61,14 @@ const EndpointList = () => {
               <Link to={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
                 http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
               </Link>
+              <OpenUrlButton
+              url={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`}/>
+              <CopyButton
+        url={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`}
+        />
               <button
                 onClick={() => toggleEndpointEditor(endpoint.endpointid)}  // Use endpointid here
-                className="text-gray-400 hover:text-white cursor-pointer"
+                className="py-2 px-4 rounded focus:outline-none flex items-center 'bg-pink-600'}"
               >
                 {expandedEndpoint === endpoint.endpointid ? <FaChevronUp /> : <FaChevronDown />}
               </button>
