@@ -89,15 +89,15 @@ const Layout = () => {
               <FiHome className="mr-2" />
               Home
             </Link>
-            <Link to="/shared" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/dashboard/share" className="flex items-center text-white hover:text-gray-300">
               <FiShare className="mr-2" />
               Share
             </Link>
-            <Link to="/billing" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/dashboard/billing" className="flex items-center text-white hover:text-gray-300">
               <FiDollarSign className="mr-2" />
               Payments
             </Link>
-            <Link to="/settings" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/dashboard/settings" className="flex items-center text-white hover:text-gray-300">
               <FiSettings className="mr-2" />
               Settings
             </Link>
