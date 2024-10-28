@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 
-const EndpointJsonEditor = () => {
-  const { Projectid } = useParams();
+const EndpointJsonEditor = ({ Projectid, endpointId }) => {
   const [jsonData, setJsonData] = useState('{}');
   const [error, setError] = useState('');
   const websocketRef = useRef(null);
 
   useEffect(() => {
-    const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}`;
+    const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}/${endpointId}`;
     websocketRef.current = new WebSocket(websocketUrl);
 
     websocketRef.current.onmessage = (event) => {
@@ -20,7 +18,7 @@ const EndpointJsonEditor = () => {
       }
     };
 
-    websocketRef.current.onerror = (event) => {
+    websocketRef.current.onerror = () => {
       setError('WebSocket error');
     };
 
@@ -33,7 +31,7 @@ const EndpointJsonEditor = () => {
         websocketRef.current.close();
       }
     };
-  }, [Projectid]);
+  }, [Projectid, endpointId]);
 
   const handleJsonChange = (e) => {
     const newJsonData = e.target.value;
@@ -46,11 +44,12 @@ const EndpointJsonEditor = () => {
 
   return (
     <div className="w-full max-w-3xl p-8 bg-gray-800 rounded-lg">
-      <h2 className="text-2xl font-bold text-white mb-4">Edit JSON Data for Project {Projectid}</h2>
+      <h2 className="text-xl font-semibold text-white mb-4">Edit JSON Data for Endpoint {endpointId}</h2>
       <textarea
         value={jsonData}
         onChange={handleJsonChange}
-        className="w-full h-96 p-4 bg-gray-900 text-white rounded-lg resize-none"
+        rows="8"
+        className="w-full h-40 p-4 bg-gray-900 text-white rounded-lg resize-none"
       ></textarea>
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>

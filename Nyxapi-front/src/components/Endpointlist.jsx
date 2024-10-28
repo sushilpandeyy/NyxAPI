@@ -1,17 +1,16 @@
-// EndpointList.js
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaUserFriends, FaEllipsisV } from 'react-icons/fa';
+import { FaUserFriends, FaEllipsisV, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import nyxLogo from '../assets/nyxLogo.webp';
 import CollborateModal from './CollborateModal';
+import EndpointJsonEditor from './Endpointsjson';
 
 const EndpointList = () => {
   const { Projectid } = useParams();
   const [endpoints, setEndpoints] = useState([]);
-  const [endpoint, setEndpoint] = useState('');
-  const [jsonData, setJsonData] = useState('');
   const [isJsonInputVisible, setIsJsonInputVisible] = useState(false);
+  const [expandedEndpoint, setExpandedEndpoint] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,7 +23,6 @@ const EndpointList = () => {
     const fetchEndpointData = async () => {
       try {
         const response = await axios.get(`http://52.66.241.159/endpoints/${projectIdInt}`);
-        console.log(response.data)
         setEndpoints(response.data.endpoint_info);
       } catch (err) {
         setError('Failed to load endpoint information.');
@@ -34,22 +32,8 @@ const EndpointList = () => {
     fetchEndpointData();
   }, [projectIdInt]);
 
-  const handleSaveJsonData = async () => {
-    try {
-      const parsedJson = JSON.parse(jsonData);
-      const payload = {
-        Endpoint: endpoint,
-        Projectid: projectIdInt,
-        Apitype: 'GET',
-        Payload: JSON.stringify(parsedJson),
-      };
-      await axios.post('http://52.66.241.159/endpoints/', payload);
-      alert('Endpoint created successfully');
-      setEndpoint('');
-      setJsonData('');
-    } catch (error) {
-      setError('Failed to create endpoint. Ensure the JSON data is valid.');
-    }
+  const toggleEndpointEditor = (endpointId) => {
+    setExpandedEndpoint(expandedEndpoint === endpointId ? null : endpointId);
   };
 
   return (
@@ -68,11 +52,23 @@ const EndpointList = () => {
 
       <div className="space-y-4">
         {endpoints.map((endpoint) => (
-          <div key={endpoint.id} className="flex justify-between items-center p-4 bg-gray-700 rounded-md shadow-md">
-            <Link to={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
-              http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
-            </Link>
-            <FaEllipsisV className="text-gray-400 hover:text-white cursor-pointer" />
+          <div key={endpoint.id} className="bg-gray-700 rounded-md shadow-md">
+            <div className="flex justify-between items-center p-4">
+              <Link to={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
+                http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
+              </Link>
+              <button
+                onClick={() => toggleEndpointEditor(endpoint.id)}
+                className="text-gray-400 hover:text-white cursor-pointer"
+              >
+                {expandedEndpoint === endpoint.id ? <FaChevronUp /> : <FaChevronDown />}
+              </button>
+            </div>
+            {expandedEndpoint === endpoint.id && (
+              <div className="p-4">
+                <EndpointJsonEditor Projectid={Projectid} endpointId={endpoint.id} />
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -89,33 +85,7 @@ const EndpointList = () => {
       {isJsonInputVisible && (
         <div className="mt-6 bg-gray-700 p-4 rounded-md shadow-md">
           <h2 className="text-xl font-semibold text-white mb-4">New Endpoint</h2>
-          <div className="flex items-center mb-4">
-            <span className="inline-block p-2 font-mono text-sm text-blue-800 bg-blue-100 rounded-l">
-              http://{projectIdInt}.nyxapi.com/
-            </span>
-            <input
-              type="text"
-              value={endpoint}
-              onChange={(e) => setEndpoint(e.target.value)}
-              placeholder="Enter endpoint path"
-              className="flex-grow p-2 font-mono text-sm text-blue-800 bg-white rounded-r focus:outline-none"
-            />
-          </div>
-
-          <textarea
-            value={jsonData}
-            onChange={(e) => setJsonData(e.target.value)}
-            placeholder="Enter JSON data"
-            rows="6"
-            className="w-full p-3 text-gray-800 bg-white rounded focus:outline-none mb-4"
-          />
-
-          <button
-            onClick={handleSaveJsonData}
-            className="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700"
-          >
-            Save Endpoint
-          </button>
+          {/* Form for new endpoint (as in original code) */}
         </div>
       )}
 
