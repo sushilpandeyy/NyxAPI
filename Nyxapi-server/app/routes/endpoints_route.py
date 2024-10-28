@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_db
-from app.schema.endpoints_schema import Endpoints
-from app.crud.endpoints_crud import create_endpoint, get_endpoints
+from app.schema.endpoints_schema import Endpoints, PayloadUpdateRequest
+from app.crud.endpoints_crud import create_endpoint, get_endpoints, update_endpoint_payload
 
 endpointroutes = APIRouter()
 
@@ -23,3 +23,21 @@ async def createendpoint(endpointdata: Endpoints, db: AsyncSession = Depends(get
 async def getendoints(projectid: int, db: AsyncSession = Depends(get_db)):
     endpoints= await get_endpoints(db=db, Projectid=projectid)
     return {"msg": "Endpoints Data", "Projectid": projectid,"endpoint_info": endpoints}
+
+@endpointroutes.put("/update_payload/{endpoint_id}")
+async def update_payload(
+    endpoint_id: int,
+    request: PayloadUpdateRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        updated_endpoint = await update_endpoint_payload(db=db, endpoint_id=endpoint_id, new_payload=request.payload)
+        return {
+            "msg": "Endpoint payload updated successfully",
+            "endpoint_id": endpoint_id,
+            "updated_endpoint": updated_endpoint
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")

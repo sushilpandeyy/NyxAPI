@@ -66,7 +66,7 @@ const EndpointList = () => {
             </div>
             {expandedEndpoint === endpoint.id && (
               <div className="p-4">
-                <EndpointJsonEditor Projectid={Projectid} endpointId={endpoint.id} />
+                <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.id)} />
               </div>
             )}
           </div>

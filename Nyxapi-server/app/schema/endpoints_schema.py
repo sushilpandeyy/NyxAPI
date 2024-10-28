@@ -5,3 +5,6 @@ class Endpoints(BaseModel):
     Projectid: int
     Apitype: str
     Payload: str
+
+class PayloadUpdateRequest(BaseModel):
+    payload: str
