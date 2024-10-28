@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { FaUserFriends, FaEllipsisV, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaUserFriends, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import nyxLogo from '../assets/nyxLogo.webp';
 import CollborateModal from './CollborateModal';
 import EndpointJsonEditor from './Endpointsjson';
@@ -24,7 +24,7 @@ const EndpointList = () => {
       try {
         const response = await axios.get(`http://52.66.241.159/endpoints/${projectIdInt}`);
         setEndpoints(response.data.endpoint_info);
-        console.log(response.data)
+        console.log(response.data);
       } catch (err) {
         setError('Failed to load endpoint information.');
       }
@@ -34,7 +34,6 @@ const EndpointList = () => {
   }, [projectIdInt]);
 
   const toggleEndpointEditor = (endpointId) => {
-    console.log(endpoints)
     setExpandedEndpoint(expandedEndpoint === endpointId ? null : endpointId);
   };
 
@@ -68,7 +67,7 @@ const EndpointList = () => {
             </div>
             {expandedEndpoint === endpoint.id && (
               <div className="p-4">
-                <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.endpointid)} />
+                <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.endpointid)} initialPayload={endpoint.Payload} />
               </div>
             )}
           </div>

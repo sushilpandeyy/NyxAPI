@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-const EndpointJsonEditor = ({ Projectid, endpointId }) => {
-  const [jsonData, setJsonData] = useState('{}');
+const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) => {
+  const [jsonData, setJsonData] = useState(initialPayload);
   const [error, setError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
   const websocketRef = useRef(null);
-  console.log(endpointId);
 
   useEffect(() => {
     const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}/${endpointId}`;
@@ -36,14 +35,6 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
     };
   }, [Projectid, endpointId]);
 
-  const sanitizeInput = (input) => {
-    return input.replace(/"/g, '[[DQ]]'); // Replace double quotes with placeholder
-  };
-
-  const restoreOutput = (output) => {
-    return output.replace(/\[\[DQ\]\]/g, '"'); // Restore placeholder back to double quotes
-  };
-
   const handleJsonChange = (e) => {
     const newJsonData = e.target.value;
     setJsonData(newJsonData);
@@ -53,10 +44,21 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
     }
   };
 
+  // Function to sanitize input by replacing double quotes with [[DQ]]
+  const sanitizeInput = (input) => {
+    return input.replace(/"/g, '[[DQ]]');
+  };
+
+  // Function to restore output by replacing [[DQ]] back to double quotes
+  const restoreOutput = (output) => {
+    return output.replace(/\[\[DQ\]\]/g, '"');
+  };
+
   const handleSave = async () => {
     try {
-      const sanitizedJsonData = sanitizeInput(jsonData); // Sanitize before saving
-      const payload = { payload: sanitizedJsonData };
+      const sanitizedPayload = sanitizeInput(jsonData); // Sanitize before saving
+      const payload = { payload: sanitizedPayload };
+      
       await axios.put(`http://localhost:8000/endpoints/update_payload/${parseInt(endpointId)}`, payload);
       setSaveStatus('Data saved successfully!');
       setError('');
@@ -66,28 +68,24 @@ const EndpointJsonEditor = ({ Projectid, endpointId }) => {
     }
   };
 
-  // Restore the output when loading data into the editor
-  const restoredJsonData = restoreOutput(jsonData);
+  // Restore the output when displaying it (if necessary)
+  const displayedJsonData = restoreOutput(jsonData);
 
   return (
     <div className="w-full max-w-3xl p-8 bg-gray-800 rounded-lg">
-      <h2 className="text-white text-lg font-bold mb-4">JSON Editor</h2>
+      <h2 className="text-lg font-bold text-white">JSON Editor</h2>
       <textarea
-        value={restoredJsonData}
+        className="w-full h-64 p-2 text-black"
+        value={displayedJsonData} // Use restored data for display
         onChange={handleJsonChange}
-        rows={10}
-        className="w-full p-2 rounded-md bg-gray-900 text-white border border-gray-600"
       />
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500"
-        >
+      <div className="mt-4">
+        <button onClick={handleSave} className="p-2 bg-blue-500 text-white rounded">
           Save
         </button>
-        {error && <p className="text-red-500">{error}</p>}
-        {saveStatus && <p className="text-green-500">{saveStatus}</p>}
       </div>
+      {error && <p className="text-red-500">{error}</p>}
+      {saveStatus && <p className="text-green-500">{saveStatus}</p>}
     </div>
   );
 };
