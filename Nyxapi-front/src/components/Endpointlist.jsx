@@ -9,22 +9,22 @@ import CollborateModal from './CollborateModal';
 const EndpointList = () => {
   const { Projectid } = useParams();
   const [endpoints, setEndpoints] = useState([]);
-  const [endpoint, setEndpoint] = useState('enter-endpoint-path');
+  const [endpoint, setEndpoint] = useState('');
   const [jsonData, setJsonData] = useState('');
   const [isJsonInputVisible, setIsJsonInputVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState('');
-  
+
   const projectIdInt = parseInt(Projectid, 10);
 
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
+  const toggleJsonInputVisibility = () => setIsJsonInputVisible(!isJsonInputVisible);
 
   useEffect(() => {
     const fetchEndpointData = async () => {
       try {
         const response = await axios.get(`http://52.66.241.159/endpoints/${projectIdInt}`);
+        console.log(response.data)
         setEndpoints(response.data.endpoint_info);
       } catch (err) {
         setError('Failed to load endpoint information.');
@@ -40,72 +40,86 @@ const EndpointList = () => {
       const payload = {
         Endpoint: endpoint,
         Projectid: projectIdInt,
-        Apitype: "GET",
+        Apitype: 'GET',
         Payload: JSON.stringify(parsedJson),
       };
       await axios.post('http://52.66.241.159/endpoints/', payload);
       alert('Endpoint created successfully');
+      setEndpoint('');
+      setJsonData('');
     } catch (error) {
       setError('Failed to create endpoint. Ensure the JSON data is valid.');
     }
   };
 
   return (
-    <div className="w-full max-w-3xl p-8 bg-gray-800 rounded-lg">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-white">API Endpoints</h2>
-        <div className="flex items-center space-x-4">
-          <FaUserFriends onClick={toggleModal} className="cursor-pointer hover:text-white" />
-          <FaEllipsisV className="cursor-pointer hover:text-white" />
+    <div className="w-full max-w-3xl mx-auto p-8 bg-gray-800 rounded-lg shadow-lg">
+      <header className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-2">
+          <img src={nyxLogo} alt="Nyx Logo" className="h-10 w-10" />
+          <h1 className="text-3xl font-bold text-white">Endpoints</h1>
         </div>
+        <button onClick={toggleModal} className="text-gray-300 hover:text-white">
+          <FaUserFriends className="text-2xl" title="Collaborators" />
+        </button>
+      </header>
+
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+
+      <div className="space-y-4">
+        {endpoints.map((endpoint) => (
+          <div key={endpoint.id} className="flex justify-between items-center p-4 bg-gray-700 rounded-md shadow-md">
+            <Link to={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
+              http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
+            </Link>
+            <FaEllipsisV className="text-gray-400 hover:text-white cursor-pointer" />
+          </div>
+        ))}
       </div>
 
-      <div className="flex items-center mb-4">
-        <Link to={`http://${projectIdInt}.localhost:8001/${endpoint}`}>
-          <span className="inline-block p-2 bg-blue-100 text-blue-800 rounded-l">http://{projectIdInt}.nyxapi.com/</span>
-        </Link>
-        <input
-          type="text"
-          value={endpoint}
-          onChange={(e) => setEndpoint(e.target.value)}
-          className="w-full p-2 bg-white text-blue-800 rounded-r"
-          placeholder="Enter endpoint path"
-        />
+      <div className="mt-8">
+        <button
+          onClick={toggleJsonInputVisibility}
+          className="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
+        >
+          {isJsonInputVisible ? 'Hide JSON Input' : 'Add New Endpoint'}
+        </button>
       </div>
-
-      <button onClick={() => setIsJsonInputVisible(!isJsonInputVisible)} className="bg-blue-600 hover:bg-blue-700 text-white rounded p-2">
-        New Resource
-      </button>
 
       {isJsonInputVisible && (
-        <div className="mt-4">
+        <div className="mt-6 bg-gray-700 p-4 rounded-md shadow-md">
+          <h2 className="text-xl font-semibold text-white mb-4">New Endpoint</h2>
+          <div className="flex items-center mb-4">
+            <span className="inline-block p-2 font-mono text-sm text-blue-800 bg-blue-100 rounded-l">
+              http://{projectIdInt}.nyxapi.com/
+            </span>
+            <input
+              type="text"
+              value={endpoint}
+              onChange={(e) => setEndpoint(e.target.value)}
+              placeholder="Enter endpoint path"
+              className="flex-grow p-2 font-mono text-sm text-blue-800 bg-white rounded-r focus:outline-none"
+            />
+          </div>
+
           <textarea
             value={jsonData}
             onChange={(e) => setJsonData(e.target.value)}
             placeholder="Enter JSON data"
             rows="6"
-            className="w-full p-4 bg-gray-900 text-white rounded-lg"
+            className="w-full p-3 text-gray-800 bg-white rounded focus:outline-none mb-4"
           />
-          {error && <p className="text-red-500">{error}</p>}
-          <button onClick={handleSaveJsonData} className="bg-green-600 hover:bg-green-700 text-white rounded p-2 mt-2">
-            Save
+
+          <button
+            onClick={handleSaveJsonData}
+            className="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700"
+          >
+            Save Endpoint
           </button>
         </div>
       )}
 
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold text-white">Endpoints:</h3>
-        <ul>
-          {endpoints.map((endpoint) => (
-            <li key={endpoint.id} className="flex justify-between p-2 bg-gray-700 rounded-lg mt-2">
-              <span className="text-blue-800">http://{projectIdInt}.nyxapi.com/{endpoint.Endpoint}</span>
-              <span className="text-gray-400">{endpoint.Payload}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {isModalOpen && <CollborateModal toggleModal={toggleModal} />}
+      {isModalOpen && <CollborateModal onClose={toggleModal} />}
     </div>
   );
 };

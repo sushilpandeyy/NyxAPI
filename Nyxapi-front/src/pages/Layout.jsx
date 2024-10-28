@@ -89,11 +89,11 @@ const Layout = () => {
               <FiHome className="mr-2" />
               Home
             </Link>
-            <Link to="/files" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/dashboard" className="flex items-center text-white hover:text-gray-300">
               <FiFolder className="mr-2" />
-              Files
+              Projects
             </Link>
-            <Link to="/share" className="flex items-center text-white hover:text-gray-300">
+            <Link to="/shared" className="flex items-center text-white hover:text-gray-300">
               <FiShare className="mr-2" />
               Share
             </Link>
