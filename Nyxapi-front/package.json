@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.1.0",
     "@lottiefiles/react-lottie-player": "^3.5.4",
     "@ramonak/react-progress-bar": "^5.3.0",
     "appwrite": "^16.0.2",

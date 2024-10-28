@@ -1,27 +1,69 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
+// Encoding function to convert an object to a coded format
+const encodeObject = (obj) => {
+  try {
+    const jsonString = JSON.stringify(obj);
+    return jsonString
+      .replace(/"/g, '[[DQ]]')
+      .replace(/:/g, '[[COLON]]')
+      .replace(/,/g, '[[COMMA]]');
+  } catch (error) {
+    console.error("Encoding failed:", error);
+    return '';
+  }
+};
+
+// Decoding function to convert the coded format back to an object
+const decodeObject = (codedString) => {
+  const jsonString = codedString
+    .replace(/\[\[DQ\]\]/g, '"')
+    .replace(/\[\[COLON\]\]/g, ':')
+    .replace(/\[\[COMMA\]\]/g, ',');
+
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error("Failed to decode object:", error);
+    return null;
+  }
+};
+
 const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) => {
-  const [jsonData, setJsonData] = useState(initialPayload);
+  const [jsonData, setJsonData] = useState(() => {
+    try {
+      return JSON.stringify(decodeObject(initialPayload), null, 2);
+    } catch {
+      return '{}';
+    }
+  });
   const [error, setError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [numEntries, setNumEntries] = useState(1);
   const websocketRef = useRef(null);
 
   useEffect(() => {
     const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}/${endpointId}`;
     websocketRef.current = new WebSocket(websocketUrl);
 
+    websocketRef.current.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
     websocketRef.current.onmessage = (event) => {
       try {
-        const newData = JSON.parse(event.data);
-        setJsonData(JSON.stringify(newData, null, 2));
+        const decodedData = decodeObject(event.data);
+        if (decodedData) setJsonData(JSON.stringify(decodedData, null, 2));
       } catch (err) {
         console.error('Error parsing WebSocket message:', err);
       }
     };
 
-    websocketRef.current.onerror = () => {
-      setError('WebSocket error');
+    websocketRef.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+      setError('WebSocket connection error');
     };
 
     websocketRef.current.onclose = () => {
@@ -39,57 +81,125 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
     const newJsonData = e.target.value;
     setJsonData(newJsonData);
 
-    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      websocketRef.current.send(newJsonData);
+    try {
+      const parsedData = JSON.parse(newJsonData);
+      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+        const encodedData = encodeObject(parsedData);
+        websocketRef.current.send(encodedData);
+      }
+    } catch (err) {
+      console.error("JSON is invalid:", err);
+      setError("Invalid JSON format. Please check your input.");
     }
   };
 
-  // Function to sanitize input by replacing double quotes, colons, and commas
-  const sanitizeInput = (input) => {
-    return input
-      .replace(/"/g, '[[DQ]]')        // Replace double quotes
-      .replace(/:/g, '[[COLON]]')     // Replace colons
-      .replace(/,/g, '[[COMMA]]');    // Replace commas
-  };
-
-  // Function to restore output by replacing placeholders back to their original characters
-  const restoreOutput = (output) => {
-    return output
-      .replace(/\[\[DQ\]\]/g, '"')     // Restore double quotes
-      .replace(/\[\[COLON\]\]/g, ':')  // Restore colons
-      .replace(/\[\[COMMA\]\]/g, ','); // Restore commas
+  const updateJsonData = (newData) => {
+    setJsonData(JSON.stringify(newData, null, 2));
   };
 
   const handleSave = async () => {
     try {
-      const sanitizedPayload = sanitizeInput(jsonData); // Sanitize before saving
-      const payload = { payload: sanitizedPayload };
+      const parsedData = JSON.parse(jsonData);
+      const encodedPayload = encodeObject(parsedData);
+      const payload = { payload: encodedPayload };
 
       await axios.put(`http://localhost:8000/endpoints/update_payload/${parseInt(endpointId)}`, payload);
       setSaveStatus('Data saved successfully!');
       setError('');
     } catch (err) {
-      setError('Failed to save data. Please try again.');
+      console.error("Failed to save data:", err);
+      setError('Failed to save data. Please check your input and try again.');
       setSaveStatus('');
     }
   };
 
-  // Restore the output when displaying it (if necessary)
-  const displayedJsonData = restoreOutput(jsonData);
+  const handleGeneratedData = async () => {
+    const prompt = `Create ${numEntries} more similar data in JSON format specific to: ${jsonData}`;
+    const apiKey = 'AIzaSyD8ZBJkzUkpC46RmH6D84K8R9XwzwSAbSU';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+
+    try {
+      const response = await axios.post(
+        apiUrl,
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+        },
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+
+      // Safely parse the generated JSON data
+      console.log(response.data)
+      const generatedContent = response.data?.candidates[0]?.content?.parts[0]?.text || '[]';
+      let generatedData;
+      
+      try {
+        generatedData = JSON.parse(generatedContent);
+        if (!Array.isArray(generatedData)) {
+          throw new Error('Generated data is not an array');
+        }
+      } catch (error) {
+        console.error('Error parsing generated JSON data:', error);
+        setError('Generated data is not valid JSON.');
+        return;
+      }
+
+      setJsonData(JSON.stringify([JSON.parse(jsonData), ...generatedData], null, 2));
+      setIsPopupOpen(false); // Close popup after generating data
+    } catch (error) {
+      console.error('Failed to generate data:', error);
+      setError('Failed to generate data. Please try again.');
+    }
+  };
 
   return (
     <div className="w-full max-w-3xl p-8 bg-gray-800 rounded-lg">
       <h2 className="text-lg font-bold text-white">JSON Editor</h2>
       <textarea
         className="w-full h-64 p-2 text-black"
-        value={displayedJsonData} // Use restored data for display
+        value={jsonData}
         onChange={handleJsonChange}
       />
       <div className="mt-4">
         <button onClick={handleSave} className="p-2 bg-blue-500 text-white rounded">
           Save
         </button>
+        <button onClick={() => setIsPopupOpen(true)} className="p-2 bg-green-500 text-white rounded ml-2">
+          Generate Fake Data
+        </button>
       </div>
+
+      {isPopupOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-gray-800 p-6 w-80 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4 text-white">Generate Fake Data</h2>
+            <label className="block text-white font-medium mb-2">Number of Entries</label>
+            <input
+              type="number"
+              value={numEntries}
+              onChange={(e) => setNumEntries(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-full p-2 mb-4 border rounded"
+              min="1"
+            />
+            <div className="flex justify-between">
+              <button
+                onClick={handleGeneratedData}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Generate
+              </button>
+              <button
+                onClick={() => setIsPopupOpen(false)}
+                className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && <p className="text-red-500">{error}</p>}
       {saveStatus && <p className="text-green-500">{saveStatus}</p>}
     </div>
