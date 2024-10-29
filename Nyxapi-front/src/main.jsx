@@ -11,11 +11,9 @@ import {
 import App from './App';
 import Homepage from './pages/Homepage';
 import Auth from './components/auth';
-import Endpoint from './components/ApiEndpoint';
 import Layout from './pages/Layout';
 import Projects from './pages/Projects';
 import NotFound from './pages/404';
-import SharedWithMe from './pages/SharedWithMe';
 import Usage from './pages/Usage';
 import SavedEndpoints from './components/SavedEndpoints';
 import EndpointScreen from './pages/Endpoints';
