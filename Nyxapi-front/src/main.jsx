@@ -10,7 +10,7 @@ import {
 // Import components/pages
 import App from './App';
 import Homepage from './pages/Homepage';
-import Auth from './components/Auth';
+import Auth from './components/auth';
 import Endpoint from './components/ApiEndpoint';
 import Layout from './pages/Layout';
 import Projects from './pages/Projects';
