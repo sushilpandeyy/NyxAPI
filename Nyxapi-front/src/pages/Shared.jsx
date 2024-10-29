@@ -27,7 +27,7 @@ const Shared = () => {
   
     const fetchProjects = async (userId) => {
       try {
-        const response = await axios.get(`http://52.66.241.159/share/?userid=${userId}`);
+        const response = await axios.get(`http://api.nyxapi.com/share/?userid=${userId}`);
         setProjects(response.data?.data || []);
       } catch (error) {
         console.error('Error fetching projects:', error);
@@ -52,7 +52,7 @@ const Shared = () => {
   
       try {
         const token = sessionStorage.getItem('token');
-        await axios.post('http://52.66.241.159/project/', formData, {
+        await axios.post('http://api.nyxapi.com/project/', formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toggleModal();

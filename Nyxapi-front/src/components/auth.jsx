@@ -18,8 +18,8 @@ const Auth = () => {
         : { name, email, password };
 
       const endpoint = isLogin
-        ? 'http://52.66.241.159/users/authenticate/'
-        : 'http://52.66.241.159/users/';
+        ? 'http://api.nyxapi.com/users/authenticate/'
+        : 'http://api.nyxapi.com/users/';
 
       const response = await axios.post(endpoint, requestBody);
 

@@ -56,7 +56,7 @@ const EndpointSection = () => {
       };
 
       // Send POST request to /endpoints/
-      const response = await axios.post('http://52.66.241.159/endpoints/', payload);
+      const response = await axios.post('http://api.nyxapi.com/endpoints/', payload);
 
       if (response.status === 200) {
         console.log('Endpoint created successfully:', response.data);
@@ -70,7 +70,7 @@ const EndpointSection = () => {
 
 const fetchEndpointData = async () => {
     try {
-      const response = await axios.get(`http://52.66.241.159/endpoints/${projectIdInt}`);
+      const response = await axios.get(`http://api.nyxapi.com/endpoints/${projectIdInt}`);
       const { msg, Projectid, endpoint_info } = response.data;
 
       // Set the endpoint information in state
@@ -94,7 +94,7 @@ const fetchEndpointData = async () => {
     if (isModalOpen) {
       const fetchEmails = async () => {
         try {
-          const response = await axios.get(`http://52.66.241.159/share/${projectIdInt}`);
+          const response = await axios.get(`http://api.nyxapi.com/share/${projectIdInt}`);
           setEmails(response.data.emails);
         } catch (error) {
           console.error('Error fetching emails:', error);

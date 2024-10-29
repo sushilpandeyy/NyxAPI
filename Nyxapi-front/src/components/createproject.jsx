@@ -50,7 +50,7 @@ const CreateProject = ({ toggleModal }) => {
         console.log("Sending project data:", formData);  // Log the data being sent
 
         try {
-            const response = await fetch("http://52.66.241.159/project/", {
+            const response = await fetch("http://api.nyxapi.com/project/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

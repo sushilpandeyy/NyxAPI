@@ -24,7 +24,7 @@ const EndpointList = () => {
   useEffect(() => {
     const fetchEndpointData = async () => {
       try {
-        const response = await axios.get(`http://52.66.241.159/endpoints/${projectIdInt}`);
+        const response = await axios.get(`http://api.nyxapi.com/endpoints/${projectIdInt}`);
         setEndpoints(response.data.endpoint_info);
         console.log(response.data);
       } catch (err) {
@@ -58,13 +58,13 @@ const EndpointList = () => {
         {endpoints.map((endpoint) => (
           <div key={endpoint.endpointid} className="bg-gray-700 rounded-md shadow-md">
             <div className="flex justify-between items-center p-4">
-              <Link to={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
-                http://{projectIdInt}.localhost:3001/{endpoint.Endpoint}
+              <Link to={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
+                http://{projectIdInt}.nyxapi.com/{endpoint.Endpoint}
               </Link>
               <OpenUrlButton
-              url={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`}/>
+              url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`}/>
               <CopyButton
-        url={`http://${projectIdInt}.localhost:3001/${endpoint.Endpoint}`}
+        url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`}
         />
               <button
                 onClick={() => toggleEndpointEditor(endpoint.endpointid)}  // Use endpointid here

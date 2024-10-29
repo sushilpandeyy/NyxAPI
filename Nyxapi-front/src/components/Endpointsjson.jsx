@@ -103,7 +103,7 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
       const encodedPayload = encodeObject(parsedData);
       const payload = { payload: encodedPayload };
 
-      await axios.put(`http://localhost:8000/endpoints/update_payload/${parseInt(endpointId)}`, payload);
+      await axios.put(`http://api.nyxapi.com/endpoints/update_payload/${parseInt(endpointId)}`, payload);
       setSaveStatus('Data saved successfully!');
       setError('');
     } catch (err) {

@@ -14,7 +14,7 @@ const CollborateModal = ({ toggleModal }) => {
         e.preventDefault();
         if (email) {
             try {
-                const response = await axios.post('http://52.66.241.159/share/', {
+                const response = await axios.post('http://api.nyxapi.com/share/', {
                     projectid: Projectid, // Use Projectid from useParams
                     email,
                 });
@@ -40,7 +40,7 @@ const CollborateModal = ({ toggleModal }) => {
         
         if (confirmRemove) {
           try {
-            const response = await axios.delete(`http://52.66.241.159/share/remove`, {
+            const response = await axios.delete(`http://api.nyxapi.com/share/remove`, {
               params: {
                 projectid: projectIdInt,
                 user_email: emailToRemove,
@@ -65,7 +65,7 @@ const CollborateModal = ({ toggleModal }) => {
     // Function to fetch email suggestions
     const fetchEmailSuggestions = async (initials) => {
         try {
-            const response = await axios.get(`http://52.66.241.159/share/userslist/${initials}`);
+            const response = await axios.get(`http://api.nyxapi.com/share/userslist/${initials}`);
             setSuggestions(response.data.users);
         } catch (error) {
             console.error('Error fetching email suggestions:', error);

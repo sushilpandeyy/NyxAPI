@@ -21,7 +21,7 @@ const CreateEndpoint = () => {
     };
 
     try {
-      await axios.post('http://52.66.241.159/endpoints/', payload);
+      await axios.post('http://api.nyxapi.com/endpoints/', payload);
       alert('Endpoint created successfully');
       setEndpoint('');
     } catch (error) {
