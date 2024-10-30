@@ -52,7 +52,6 @@ const Layout = () => {
             >
               <FiHome className="mr-3 text-blue-400" />
               <span className="text-sm">Home</span>
-
             </NavLink>
 
             <NavLink 
@@ -75,28 +74,22 @@ const Layout = () => {
               <span className="text-sm">Manage Subscription</span>
             </NavLink>
 
+            {/* <NavLink 
+              to="/dashboard/updates" 
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
+              }
+            >
+              <FiBell className="mr-3 text-orange-400" />
+              <span className="text-sm">Updates & FAQ</span>
+            </NavLink> */}
+
             <NavLink 
               to="/dashboard/settings" 
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
               }
             >
-
-            </Link>
-            <Link to="/dashboard/shared" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
-              <FiShare2 className="mr-3 text-green-400" />
-              <span className="text-sm">Share</span>
-            </Link>
-            <Link to="/dashboard/billing" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
-              <MdOutlineSubscriptions className="mr-3 text-purple-400" />
-              <span className="text-sm">Manage Subscription</span>
-            </Link>
-            <Link to="/dashboard/updates" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
-              <FiBell className="mr-3 text-orange-400" />
-              <span className="text-sm">Updates & FAQ</span>
-            </Link>
-            <Link to="/dashboard/settings" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
-
               <FiSettings className="mr-3 text-pink-400" />
               <span className="text-sm">Settings</span>
             </NavLink>
