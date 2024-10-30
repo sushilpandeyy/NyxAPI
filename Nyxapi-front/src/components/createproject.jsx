@@ -50,7 +50,7 @@ const CreateProject = ({ toggleModal }) => {
         console.log("Sending project data:", formData);  // Log the data being sent
 
         try {
-            const response = await fetch("http://api.nyxapi.com/project/", {
+            const response = await fetch("https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -21,7 +21,7 @@ const CreateEndpoint = () => {
     };
 
     try {
-      await axios.post('http://api.nyxapi.com/endpoints/', payload);
+      await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/', payload);
       alert('Endpoint created successfully');
       setEndpoint('');
     } catch (error) {

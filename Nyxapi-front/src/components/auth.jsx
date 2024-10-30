@@ -18,8 +18,8 @@ const Auth = () => {
         : { name, email, password };
 
       const endpoint = isLogin
-        ? 'http://api.nyxapi.com/users/authenticate/'
-        : 'http://api.nyxapi.com/users/';
+        ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
+        : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
 
       const response = await axios.post(endpoint, requestBody);
 
