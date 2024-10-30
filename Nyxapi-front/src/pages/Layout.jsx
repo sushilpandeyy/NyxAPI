@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { FiHome, FiShare2, FiBell, FiSettings } from 'react-icons/fi';
 import { MdOutlineSubscriptions } from 'react-icons/md';
 import { CgLogOut } from "react-icons/cg";
@@ -15,14 +15,14 @@ const Layout = () => {
   };
 
   const handleLogout = () => {
-    sessionStorage.clear();  // Clear all session data
-    navigate('/auth');  // Redirect to login page
+    sessionStorage.clear();
+    navigate('/login');
   };
 
   useEffect(() => {
     const sessionData = JSON.parse(sessionStorage.getItem('user'));
     if (!sessionData) {
-      navigate('/auth');
+      navigate('/login');
     } else {
       setName(sessionData.name);
     }
@@ -36,7 +36,6 @@ const Layout = () => {
           {/* Logo */}
           <div className="flex items-center mb-8 space-x-2">
             <div className="p-2 bg-blue-500 rounded-full">
-              {/* Placeholder Logo Icon */}
               <BsFillChatDotsFill size={24} />
             </div>
             <h1 className="text-xl font-semibold">NyxAPI</h1>
@@ -44,9 +43,55 @@ const Layout = () => {
 
           {/* Navigation Links */}
           <nav className="space-y-4">
-            <Link to="/dashboard" className="flex items-center px-4 py-3 transition-all bg-gray-700 rounded-lg hover:bg-gray-600">
+            <NavLink 
+              to="/dashboard" 
+              end
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
+              }
+            >
               <FiHome className="mr-3 text-blue-400" />
               <span className="text-sm">Home</span>
+
+            </NavLink>
+
+            <NavLink 
+              to="/dashboard/share" 
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
+              }
+            >
+              <FiShare2 className="mr-3 text-green-400" />
+              <span className="text-sm">Share</span>
+            </NavLink>
+
+            <NavLink 
+              to="/dashboard/subscription" 
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
+              }
+            >
+              <MdOutlineSubscriptions className="mr-3 text-purple-400" />
+              <span className="text-sm">Manage Subscription</span>
+            </NavLink>
+
+            <NavLink 
+              to="/dashboard/updates" 
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
+              }
+            >
+              <FiBell className="mr-3 text-orange-400" />
+              <span className="text-sm">Updates & FAQ</span>
+            </NavLink>
+
+            <NavLink 
+              to="/dashboard/settings" 
+              className={({ isActive }) =>
+                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
+              }
+            >
+
             </Link>
             <Link to="/dashboard/shared" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
               <FiShare2 className="mr-3 text-green-400" />
@@ -61,9 +106,10 @@ const Layout = () => {
               <span className="text-sm">Updates & FAQ</span>
             </Link>
             <Link to="/dashboard/settings" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
+
               <FiSettings className="mr-3 text-pink-400" />
               <span className="text-sm">Settings</span>
-            </Link>
+            </NavLink>
           </nav>
 
           {/* Logout Button */}
