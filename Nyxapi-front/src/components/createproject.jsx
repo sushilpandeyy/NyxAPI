@@ -4,8 +4,8 @@ import axios from 'axios';
 
 // Initialize Appwrite client
 const client = new Client()
-    .setEndpoint("https://cloud.appwrite.io/v1") // Appwrite endpoint
-    .setProject("6701847e00238051af38"); // Appwrite project ID
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject("6701847e00238051af38"); 
 
 const storage = new Storage(client);
 
@@ -50,7 +50,7 @@ const CreateProject = ({ toggleModal }) => {
         console.log("Sending project data:", formData);  // Log the data being sent
 
         try {
-            const response = await fetch("http://api.nyxapi.com/project/", {
+            const response = await fetch("https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

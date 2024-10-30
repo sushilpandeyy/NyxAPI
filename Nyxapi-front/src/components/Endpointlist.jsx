@@ -24,7 +24,7 @@ const EndpointList = () => {
   useEffect(() => {
     const fetchEndpointData = async () => {
       try {
-        const response = await axios.get(`http://api.nyxapi.com/endpoints/${projectIdInt}`);
+        const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/${projectIdInt}`);
         setEndpoints(response.data.endpoint_info);
         console.log(response.data);
       } catch (err) {

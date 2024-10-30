@@ -21,11 +21,51 @@ const Projects = () => {
       window.location.href = '/login';
     }
   }, []);
+ main
+
+  const handleCreateProject = async (e) => {
+    e.preventDefault();
+
+    // Convert image to base64 if uploaded
+    let imageData = '';
+    if (image) {
+      imageData = await toBase64(image);
+    } else {
+      // Convert default image to base64
+      imageData = await toBase64URL(defaultImage);
+    }
+
+    const formData = {
+      title,
+      userid: userId,
+      Description: description,
+      Img: imageData, // Base64 encoded image
+    };
+
+    try {
+      // Include the token in the request headers for authentication
+      const token = sessionStorage.getItem('token');
+      const response = await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.data && response.data.project_info) {
+        console.log('Project created:', response.data.project_info);
+        toggleModal();  // Close the modal after successful submission
+        fetchProjects(userId);  // Refresh the list of projects
+      }
+    } catch (err) {
+      console.error('Error creating project:', err);
+      setError('Failed to create project. Please try again.');
+    }
+  };
+ main
 
   // Fetch projects for the given userId
   const fetchProjects = async (userId) => {
     try {
-      const response = await axios.get(`http://api.nyxapi.com/project/?userid=${userId}`);
+      const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/?userid=${userId}`);
       if (response.data && response.data.Projects) {
         setProjects(response.data.Projects); // Set the projects array from response
       }

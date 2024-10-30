@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from '../components/navbar';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   return (
@@ -21,12 +22,11 @@ const HomePage = () => {
               >
                 Get Started
               </a>
-              <a
-                href="/login"
-                className="ml-4 px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 md:py-4 md:text-lg md:px-10"
-              >
+              <Link to={"/login"}
+              className="ml-4 px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 md:py-4 md:text-lg md:px-10"
+                >
                 Learn More
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -37,7 +37,10 @@ async def save_data(db: AsyncSession, projid: int, endpoint: str, payload: dict)
         print(f"Database error during saving: {e}")
         await db.rollback()
 
-async def get_response(db: AsyncSession, endpoint: str, projid: int):
+def includes_item(array, item):
+    return item in array
+
+async def get_response(db: AsyncSession, endpoint: str, projid: int, getda: str):
     try:
         print("Retrieving endpoint data...")
         print(f"Project ID: {projid}")
@@ -55,13 +58,18 @@ async def get_response(db: AsyncSession, endpoint: str, projid: int):
 
         print("Retrieved endpoint record:", endpoint_record)
 
+        if includes_item(array=endpoint_record.Apitype, item=getda):
+            print("Verified")
+        else:
+            return {"API Type is Paused"}
+
         if endpoint_record:
             # Restore Payload from placeholders to valid JSON
             payload_with_placeholders = endpoint_record.Payload
             restored_payload = restore_special_characters(payload_with_placeholders)
 
-            # Parse the payload back to JSON
             return json.loads(restored_payload)
+            
         else:
             return {"error": "No matching record found for the given project ID and endpoint"}
 

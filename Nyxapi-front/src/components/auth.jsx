@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Navigate } from 'react-router-dom';
+
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,8 +15,19 @@ const Auth = () => {
     setError(''); // Clear previous errors
 
     try {
+ main
       const requestBody = isLogin ? { email, password } : { name, email, password };
       const endpoint = isLogin ? 'http://api.nyxapi.com/users/authenticate/' : 'http://api.nyxapi.com/users/';
+
+      const requestBody = isLogin
+        ? { email, password }
+        : { name, email, password };
+
+      const endpoint = isLogin
+        ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
+        : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
+
+main
       const response = await axios.post(endpoint, requestBody);
 
       if (response.data && response.data.user) {
