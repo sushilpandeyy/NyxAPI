@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FaUserFriends, FaChevronDown, FaChevronUp } from 'react-icons/fa';
@@ -35,16 +35,15 @@ const EndpointList = () => {
     fetchEndpointData();
   }, [projectIdInt]);
 
-  // Adjust toggle function to use endpointid instead of id
   const toggleEndpointEditor = (endpointId) => {
     setExpandedEndpoint(expandedEndpoint === endpointId ? null : endpointId);
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-8 bg-gray-800 rounded-lg shadow-lg">
-      <header className="flex justify-between items-center mb-6">
+    <div className="w-full max-w-3xl p-8 mx-auto bg-gray-900 rounded-lg shadow-lg">
+      <header className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <img src={nyxLogo} alt="Nyx Logo" className="h-10 w-10" />
+          <img src={nyxLogo} alt="Nyx Logo" className="w-10 h-10" />
           <h1 className="text-3xl font-bold text-white">Endpoints</h1>
         </div>
         <button onClick={toggleModal} className="text-gray-300 hover:text-white">
@@ -52,28 +51,25 @@ const EndpointList = () => {
         </button>
       </header>
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="mb-4 text-red-500">{error}</div>}
 
       <div className="space-y-4">
         {endpoints.map((endpoint) => (
-          <div key={endpoint.endpointid} className="bg-gray-700 rounded-md shadow-md">
-            <div className="flex justify-between items-center p-4">
-              <Link to={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} className="text-blue-400 font-mono text-sm flex-grow">
+          <div key={endpoint.endpointid} className="bg-gray-800 rounded-md shadow-md">
+            <div className="flex items-center justify-between p-4">
+              <Link to={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} className="flex-grow font-mono text-sm text-indigo-400">
                 http://{projectIdInt}.nyxapi.com/{endpoint.Endpoint}
               </Link>
-              <OpenUrlButton
-              url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`}/>
-              <CopyButton
-        url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`}
-        />
+              <OpenUrlButton url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} />
+              <CopyButton url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} />
               <button
-                onClick={() => toggleEndpointEditor(endpoint.endpointid)}  // Use endpointid here
-                className="py-2 px-4 rounded focus:outline-none flex items-center 'bg-pink-600'}"
+                onClick={() => toggleEndpointEditor(endpoint.endpointid)}
+                className="flex items-center px-4 py-2 bg-indigo-600 rounded focus:outline-none"
               >
                 {expandedEndpoint === endpoint.endpointid ? <FaChevronUp /> : <FaChevronDown />}
               </button>
             </div>
-            {expandedEndpoint === endpoint.endpointid && (  // Check expandedEndpoint against endpointid
+            {expandedEndpoint === endpoint.endpointid && (
               <div className="p-4">
                 <EndpointJsonEditor Projectid={Projectid} endpointId={parseInt(endpoint.endpointid)} initialPayload={endpoint.Payload} />
               </div>
@@ -82,19 +78,18 @@ const EndpointList = () => {
         ))}
       </div>
 
-    {/** <div className="mt-8">
-        <button
-          onClick={toggleJsonInputVisibility}
-          className="w-full px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700"
-        >
-          {isJsonInputVisible ? 'Hide JSON Input' : 'Add New Endpoint'}
-        </button>
-      </div>*/}
-
       {isJsonInputVisible && (
-        <div className="mt-6 bg-gray-700 p-4 rounded-md shadow-md">
-          <h2 className="text-xl font-semibold text-white mb-4">New Endpoint</h2>
-          {/* Form for new endpoint (as in original code) */}
+        <div className="p-4 mt-6 bg-gray-800 rounded-md shadow-md">
+          <h2 className="mb-4 text-xl font-semibold text-white">New Endpoint</h2>
+          {/* Form for new endpoint */}
+          <div className="flex justify-end space-x-4">
+            <button onClick={toggleJsonInputVisibility} className="px-4 py-2 font-semibold text-white bg-gray-700 rounded hover:bg-gray-600">
+              Cancel
+            </button>
+            <button className="px-4 py-2 font-semibold text-white bg-indigo-600 rounded hover:bg-indigo-500">
+              Save
+            </button>
+          </div>
         </div>
       )}
 
