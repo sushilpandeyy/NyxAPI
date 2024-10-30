@@ -48,11 +48,11 @@ const Layout = () => {
               <FiHome className="mr-3 text-blue-400" />
               <span className="text-sm">Home</span>
             </Link>
-            <Link to="/search" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
+            <Link to="/share" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
               <FiShare2 className="mr-3 text-green-400" />
               <span className="text-sm">Share</span>
             </Link>
-            <Link to="/subscription" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
+            <Link to="/billing" className="flex items-center px-4 py-3 transition-all rounded-lg hover:bg-gray-600">
               <MdOutlineSubscriptions className="mr-3 text-purple-400" />
               <span className="text-sm">Manage Subscription</span>
             </Link>
