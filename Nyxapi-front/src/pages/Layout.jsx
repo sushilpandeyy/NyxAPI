@@ -75,16 +75,6 @@ const Layout = () => {
             </NavLink>
 
             <NavLink 
-              to="/dashboard/updates" 
-              className={({ isActive }) =>
-                `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
-              }
-            >
-              <FiBell className="mr-3 text-orange-400" />
-              <span className="text-sm">Updates & FAQ</span>
-            </NavLink>
-
-            <NavLink 
               to="/dashboard/settings" 
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
