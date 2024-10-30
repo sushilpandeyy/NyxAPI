@@ -32,7 +32,7 @@ const router = createBrowserRouter(
       {/* Dashboard Routes with Layout */}
       <Route path="dashboard" element={<Layout />}>
         <Route index element={<Projects />} />
-        <Route path="share" element={<Shared />} />
+        <Route path="shared" element={<Shared />} />
         <Route path="endpoints/:Projectid" element={<EndpointScreen />} />
         <Route path="billing" element={<Usage />} />
         <Route path="saved" element={<SavedEndpoints />} />
