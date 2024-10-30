@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-// Encoding function to convert an object to a coded format
+// Utility Functions: Encode and Decode JSON
 const encodeObject = (obj) => {
   try {
-    const jsonString = JSON.stringify(obj);
-    return jsonString
+    return JSON.stringify(obj)
       .replace(/"/g, '[[DQ]]')
       .replace(/:/g, '[[COLON]]')
       .replace(/,/g, '[[COMMA]]');
@@ -15,15 +14,14 @@ const encodeObject = (obj) => {
   }
 };
 
-// Decoding function to convert the coded format back to an object
 const decodeObject = (codedString) => {
-  const jsonString = codedString
-    .replace(/\[\[DQ\]\]/g, '"')
-    .replace(/\[\[COLON\]\]/g, ':')
-    .replace(/\[\[COMMA\]\]/g, ',');
-
   try {
-    return JSON.parse(jsonString);
+    return JSON.parse(
+      codedString
+        .replace(/\[\[DQ\]\]/g, '"')
+        .replace(/\[\[COLON\]\]/g, ':')
+        .replace(/\[\[COMMA\]\]/g, ',')
+    );
   } catch (error) {
     console.error("Failed to decode object:", error);
     return null;
@@ -32,11 +30,8 @@ const decodeObject = (codedString) => {
 
 const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) => {
   const [jsonData, setJsonData] = useState(() => {
-    try {
-      return JSON.stringify(decodeObject(initialPayload), null, 2);
-    } catch {
-      return '{}';
-    }
+    const decoded = decodeObject(initialPayload);
+    return JSON.stringify(decoded, null, 2) || '{}';
   });
   const [error, setError] = useState('');
   const [saveStatus, setSaveStatus] = useState('');
@@ -46,109 +41,78 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
 
   useEffect(() => {
     const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}/${endpointId}`;
-    websocketRef.current = new WebSocket(websocketUrl);
+    const ws = new WebSocket(websocketUrl);
+    websocketRef.current = ws;
 
-    websocketRef.current.onopen = () => {
-      console.log('WebSocket connection established');
+    ws.onopen = () => console.log('WebSocket connection established');
+    ws.onmessage = (event) => {
+      const decodedData = decodeObject(event.data);
+      if (decodedData) setJsonData(JSON.stringify(decodedData, null, 2));
     };
+    ws.onerror = () => setError('WebSocket connection error');
+    ws.onclose = () => console.log('WebSocket connection closed');
 
-    websocketRef.current.onmessage = (event) => {
-      try {
-        const decodedData = decodeObject(event.data);
-        if (decodedData) setJsonData(JSON.stringify(decodedData, null, 2));
-      } catch (err) {
-        console.error('Error parsing WebSocket message:', err);
-      }
-    };
-
-    websocketRef.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setError('WebSocket connection error');
-    };
-
-    websocketRef.current.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    return () => {
-      if (websocketRef.current) {
-        websocketRef.current.close();
-      }
-    };
+    return () => ws.close();
   }, [Projectid, endpointId]);
 
   const handleJsonChange = (e) => {
     const newJsonData = e.target.value;
     setJsonData(newJsonData);
+    setError(''); // Clear errors on change
 
     try {
       const parsedData = JSON.parse(newJsonData);
-      if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-        const encodedData = encodeObject(parsedData);
-        websocketRef.current.send(encodedData);
+      if (websocketRef.current.readyState === WebSocket.OPEN) {
+        websocketRef.current.send(encodeObject(parsedData));
       }
-    } catch (err) {
-      console.error("JSON is invalid:", err);
+    } catch {
       setError("Invalid JSON format. Please check your input.");
     }
-  };
-
-  const updateJsonData = (newData) => {
-    setJsonData(JSON.stringify(newData, null, 2));
   };
 
   const handleSave = async () => {
     try {
       const parsedData = JSON.parse(jsonData);
-      const encodedPayload = encodeObject(parsedData);
-      const payload = { payload: encodedPayload };
+      const payload = { payload: encodeObject(parsedData) };
 
-      await axios.put(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/update_payload/${parseInt(endpointId)}`, payload);
+      await axios.put(
+        `https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/update_payload/${parseInt(endpointId)}`,
+        payload
+      );
       setSaveStatus('Data saved successfully!');
-      setError('');
     } catch (err) {
-      console.error("Failed to save data:", err);
       setError('Failed to save data. Please check your input and try again.');
       setSaveStatus('');
     }
   };
 
   const handleGeneratedData = async () => {
-    const prompt = `Create ${numEntries} more similar data in JSON format specific to: ${jsonData}`;
-    const apiKey = 'AIzaSyD8ZBJkzUkpC46RmH6D84K8R9XwzwSAbSU';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
-
     try {
-      const response = await axios.post(
-        apiUrl,
-        {
-          contents: [{ parts: [{ text: prompt }] }],
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      const prompt = `Create ${numEntries} more similar data entries in JSON format specific to: ${jsonData}`;
+      const apiKey = 'AIzaSyD8ZBJkzUkpC46RmH6D84K8R9XwzwSAbSU';
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
-      // Safely parse the generated JSON data
-      console.log(response.data)
-      const generatedContent = response.data?.candidates[0]?.content?.parts[0]?.text || '[]';
-      let generatedData;
-      
-      try {
-        generatedData = JSON.parse(generatedContent);
-        if (!Array.isArray(generatedData)) {
-          throw new Error('Generated data is not an array');
+      const response = await axios.post(apiUrl, {
+        prompt: {
+          contents: [{ parts: [{ text: prompt }] }]
         }
-      } catch (error) {
-        console.error('Error parsing generated JSON data:', error);
+      });
+
+      const generatedContent = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+      const generatedData = JSON.parse(generatedContent);
+
+      if (Array.isArray(generatedData)) {
+        const combinedData = JSON.stringify(
+          [...JSON.parse(jsonData), ...generatedData],
+          null,
+          2
+        );
+        setJsonData(combinedData);
+        setIsPopupOpen(false);
+      } else {
         setError('Generated data is not valid JSON.');
-        return;
       }
-
-      setJsonData(JSON.stringify([JSON.parse(jsonData), ...generatedData], null, 2));
-      setIsPopupOpen(false); // Close popup after generating data
     } catch (error) {
-      console.error('Failed to generate data:', error);
       setError('Failed to generate data. Please try again.');
     }
   };
@@ -165,9 +129,9 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
         <button onClick={handleSave} className="p-2 bg-blue-500 text-white rounded">
           Save
         </button>
-        <button onClick={() => setIsPopupOpen(true)} className="p-2 bg-green-500 text-white rounded ml-2">
+        {/*<button onClick={() => setIsPopupOpen(true)} className="p-2 bg-green-500 text-white rounded ml-2">
           Generate Fake Data
-        </button>
+  </button>*/}
       </div>
 
       {isPopupOpen && (
