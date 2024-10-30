@@ -16,8 +16,7 @@ const Auth = () => {
 
     try {
  main
-      const requestBody = isLogin ? { email, password } : { name, email, password };
-      const endpoint = isLogin ? 'http://api.nyxapi.com/users/authenticate/' : 'http://api.nyxapi.com/users/';
+     
 
       const requestBody = isLogin
         ? { email, password }
