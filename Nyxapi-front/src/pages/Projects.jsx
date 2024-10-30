@@ -21,7 +21,7 @@ const Projects = () => {
       window.location.href = '/login';
     }
   }, []);
- main
+ 
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
@@ -60,7 +60,7 @@ const Projects = () => {
       setError('Failed to create project. Please try again.');
     }
   };
- main
+ 
 
   // Fetch projects for the given userId
   const fetchProjects = async (userId) => {
