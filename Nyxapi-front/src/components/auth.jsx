@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Navigate } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,33 +8,34 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(''); // Clear previous errors
 
+    const requestBody = isLogin ? { email, password } : { name, email, password };
+    const endpoint = isLogin
+      ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
+      : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
+
     try {
- main
-     
-
-      const requestBody = isLogin
-        ? { email, password }
-        : { name, email, password };
-
-      const endpoint = isLogin
-        ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
-        : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
-
-main
-      const response = await axios.post(endpoint, requestBody);
+      const response = await axios.post(endpoint, requestBody, {
+        headers: { 'Content-Type': 'application/json' },
+      });
 
       if (response.data && response.data.user) {
-        const { access_token, user } = response.data.user;
-        sessionStorage.setItem('token', access_token);
+        // Store session data for both login and signup
+        const user = response.data.user.user;
         sessionStorage.setItem('user', JSON.stringify(user));
-        window.location.href = '/dashboard';
+
+        // Redirect to dashboard
+        navigate('/dashboard');
+      } else {
+        setError('Authentication failed. Please check your credentials and try again.');
       }
     } catch (err) {
+      console.error('Error during authentication:', err);
       setError(isLogin ? 'Login failed. Please check your credentials and try again.' : 'Sign up failed. Please try again.');
     }
   };
@@ -94,25 +94,6 @@ main
               {isLogin ? 'Login' : 'Sign up'}
             </button>
           </form>
-
-          <div className="w-full mt-6 space-y-4">
-            <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded-md shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google logo"
-                className="w-5 h-5 mr-2"
-              />
-              Continue with Google
-            </button>
-            <button className="flex items-center justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded-md shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <img
-                src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-                alt="GitHub logo"
-                className="w-5 h-5 mr-2"
-              />
-              Continue with GitHub
-            </button>
-          </div>
 
           <p className="mt-4 text-center text-gray-400">
             {isLogin ? (
