@@ -25,13 +25,9 @@ def get_subdomain(url: str) -> str:
             return "No subdomain found"
     return "Invalid URL"
 
-@app.get("/")
-async def read_root():
-    return {"message": "Hello Sir!!"}
-
 @app.get("/{full_path:path}")
 async def fetch_data(full_path: str, request: Request, db: Session = Depends(get_db)):
-    # Extract subdomain from the request URL
+    # Extract subdomain from the request UR
     projectid_str = get_subdomain(str(request.url))
     
     # Attempt to convert projectid to an integer
@@ -41,6 +37,26 @@ async def fetch_data(full_path: str, request: Request, db: Session = Depends(get
         raise HTTPException(status_code=400, detail=f"Subdomain '{projectid_str}' cannot be converted to an integer.")
     
     
-    res = await get_response(db=db, endpoint=full_path, projid=projectid)
-    
+    res = await get_response(db=db, endpoint=full_path, projid=projectid, getda="G")
+    print(res)
     return res
+
+@app.post("/{full_path:path}")
+async def fetch_data(full_path: str, request: Request, db: Session = Depends(get_db)):
+    # Extract subdomain from the request UR
+    projectid_str = get_subdomain(str(request.url))
+    
+    # Attempt to convert projectid to an integer
+    try:
+        projectid = int(projectid_str)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Subdomain '{projectid_str}' cannot be converted to an integer.")
+    
+    
+    res = await get_response(db=db, endpoint=full_path, projid=projectid, getda="P")
+    print(res)
+    return res
+
+@app.get("/kpoopop")
+async def read_root():
+    return {"message": "Hello Sir!!"}

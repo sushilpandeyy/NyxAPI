@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import nyx from '../assets/nyxLogo.webp';  // Importing the default template image
+import { FiPlus } from 'react-icons/fi';
 import Createproject from '../components/createproject';
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [image, setImage] = useState(null);
-  const [error, setError] = useState('');
   const [projects, setProjects] = useState([]); // Store fetched projects
   const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState('');
 
   const defaultImage = 'https://cdn4.vectorstock.com/i/1000x1000/71/28/square-loader-icon-circle-button-load-sign-symbol-vector-29007128.jpg'; // Default image if not uploaded
 
@@ -20,13 +15,14 @@ const Projects = () => {
     const userData = JSON.parse(sessionStorage.getItem('user'));
     if (userData) {
       setUserId(userData.user_id);
-      setUserName(userData.name);
       fetchProjects(userData.user_id);  // Fetch projects for the user
     } else {
       // Redirect to login if user data is not found
       window.location.href = '/login';
     }
   }, []);
+ 
+
   const handleCreateProject = async (e) => {
     e.preventDefault();
 
@@ -49,7 +45,7 @@ const Projects = () => {
     try {
       // Include the token in the request headers for authentication
       const token = sessionStorage.getItem('token');
-      const response = await axios.post('http://52.66.241.159/project/', formData, {
+      const response = await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -64,18 +60,17 @@ const Projects = () => {
       setError('Failed to create project. Please try again.');
     }
   };
+ 
 
   // Fetch projects for the given userId
   const fetchProjects = async (userId) => {
     try {
-      const response = await axios.get(`http://52.66.241.159/project/?userid=${userId}`);
+      const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/?userid=${userId}`);
       if (response.data && response.data.Projects) {
         setProjects(response.data.Projects); // Set the projects array from response
-        console.log(response.data.Projects)
       }
     } catch (err) {
       console.error('Error fetching projects:', err);
-      setError('Failed to fetch projects.');
     }
   };
 
@@ -84,99 +79,75 @@ const Projects = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Function to handle form submission (for creating a project)
-  
-
-  // Function to handle image upload
-  const handleImageUpload = (e) => {
-    setImage(e.target.files[0]);
-  };
-
-  // Helper function to convert image file to base64
-  const toBase64 = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
-
-  // Helper function to convert image URL to base64
-  const toBase64URL = (url) => new Promise((resolve, reject) => {
-    fetch(url)
-      .then(response => response.blob())
-      .then(blob => toBase64(blob))
-      .then(dataUrl => resolve(dataUrl))
-      .catch(error => reject(error));
-  });
-
   return (
-    <>
-      <div className="min-h-screen py-10 text-white bg-gray-900">
-        <div className="px-6 mx-auto max-w-7xl">
+    <div className="min-h-screen py-10 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+      <div className="p-8 px-6 mx-auto bg-gray-900 rounded-lg shadow-lg max-w-7xl bg-opacity-90 backdrop-blur-lg">
+        {/* Projects Section */}
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-semibold text-white">My Projects</h2>
+          <button
+            onClick={toggleModal}
+            className="px-5 py-2 font-semibold text-white transition-all transform bg-indigo-600 rounded-full hover:scale-105 hover:bg-gradient-to-r hover:from-purple-500 hover:to-indigo-600 hover:shadow-lg focus:outline-none"
+          >
+            + New Project
+          </button>
+        </div>
 
-          {/* Projects Section */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Projects</h2>
-            <button
-              onClick={toggleModal}
-              className="px-4 py-2 font-semibold text-white bg-pink-600 rounded hover:bg-pink-700"
-            >
-              + Create Project
-            </button>
-          </div>
-
-          {/* Projects Cards */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {/* Map through the fetched projects */}
-            {projects.length > 0 ? (
-              projects.map((project) => (
-                <div
-                  key={project.id}
-                  className="relative p-6 bg-gray-800 rounded-lg transition-transform transform hover:scale-105 cursor-pointer"
-                  onClick={() => window.location.href = `/dashboard/endpoints/${project.Projectid}`}
-                >
-                  <div className="flex items-center">
-                    <img 
-                      src={project.Img || defaultImage}
-                      alt="Project Logo"
-                      className="w-10 h-10 mr-3"
-                    />
-                    <h3 className="text-lg font-semibold">{project.Title}</h3>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-400">{project.Description}</p>
-                  <p className="mt-1 text-sm text-gray-400">Created: {new Date(project.created).toLocaleDateString()}</p>
+        {/* Projects Cards */}
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.length > 0 ? (
+            projects.map((project) => (
+              <div
+                key={project.id}
+                className="relative p-6 transition-transform transform bg-gray-800 rounded-lg shadow-lg cursor-pointer bg-opacity-70 hover:scale-105 hover:rotate-1 hover:bg-gray-700 hover:shadow-lg hover:shadow-indigo-500/50"
+                onClick={() => window.location.href = `/dashboard/endpoints/${project.Projectid}`}
+              >
+                <div className="flex items-center mb-4">
+                  <img 
+                    src={project.Img || defaultImage}
+                    alt="Project Logo"
+                    className="object-cover w-12 h-12 mr-3 rounded-md shadow-md"
+                  />
+                  <h3 className="text-lg font-semibold text-white">{project.Title}</h3>
                 </div>
-              ))
-            ) : (
-              <p className="text-gray-400">No projects available.</p>
-            )}
+                <p className="text-sm text-gray-400">{project.Description}</p>
+                <p className="mt-1 text-xs text-gray-500">Created: {new Date(project.created).toLocaleDateString()}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400">No projects available.</p>
+          )}
 
-            {/* Create New Project Card */}
-            <div
-              onClick={toggleModal}
-              className="flex items-center justify-center p-6 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700"
-            >
-              <span className="text-xl">+ Create a new project</span>
+          {/* Create New Project Card */}
+          <div
+            onClick={toggleModal}
+            className="relative flex items-center justify-center p-6 transition bg-gray-800 rounded-lg shadow-lg cursor-pointer bg-opacity-70 hover:bg-gray-700 hover:shadow-indigo-500/50"
+          >
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex items-center justify-center mb-3 text-2xl text-gray-300 bg-gray-700 rounded-full shadow-lg w-14 h-14">
+                <FiPlus />
+              </div>
+              <span className="text-lg font-semibold text-gray-300">Create New Project</span>
             </div>
           </div>
+        </div>
 
-          {/* Pagination and Project Count */}
-          <div className="flex items-center justify-between mt-6">
-            <div className="flex items-center space-x-2">
-              <label className="text-gray-400">Projects per page:</label>
-              <select className="px-3 py-2 text-white bg-gray-800 rounded">
-                <option value="6">6</option>
-                <option value="12">12</option>
-                <option value="24">24</option>
-              </select>
-              <span className="text-gray-400">Total results: {projects.length}</span>
-            </div>
+        {/* Pagination and Project Count */}
+        <div className="flex items-center justify-between mt-10 text-gray-400">
+          <div className="flex items-center space-x-2">
+            <label>Projects per page:</label>
+            <select className="px-3 py-2 text-white bg-gray-800 rounded-lg focus:outline-none">
+              <option value="6">6</option>
+              <option value="12">12</option>
+              <option value="24">24</option>
+            </select>
+            <span>Total results: {projects.length}</span>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              <button className="text-gray-400">Prev</button>
-              <span className="text-gray-400">1</span>
-              <button className="text-gray-400">Next</button>
-            </div>
+          <div className="flex items-center space-x-4">
+            <button className="px-3 py-2 text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600">Prev</button>
+            <span>1</span>
+            <button className="px-3 py-2 text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600">Next</button>
           </div>
         </div>
       </div>
@@ -185,7 +156,7 @@ const Projects = () => {
       {isModalOpen && (
         <Createproject toggleModal={toggleModal} />
       )}
-    </>
+    </div>
   );
 };
 
