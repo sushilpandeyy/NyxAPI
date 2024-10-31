@@ -55,7 +55,7 @@ const Layout = () => {
             </NavLink>
 
             <NavLink 
-              to="/dashboard/share" 
+              to="/dashboard/shared" 
               className={({ isActive }) =>
                 `flex items-center px-4 py-3 transition-all rounded-lg ${isActive ? 'bg-gray-700' : 'hover:bg-gray-600'}`
               }
