@@ -12,7 +12,7 @@ async def create_endpoint(db: AsyncSession, endpoint_str: str, projectid: int, a
     try:
         cprint(f"Creating endpoint for Project ID: {projectid}", 'cyan')
 
-        new_endpoint = Endpoint(Endpoint=endpoint_str, Projectid=projectid, Apitype=apitype, Payload=payload)
+        new_endpoint = Endpoint(Endpoint=endpoint_str, Projectid=projectid, Apitype={"G","P"}, Payload=payload)
         db.add(new_endpoint)
         await db.commit()
         await db.refresh(new_endpoint)
