@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const CollborateModal = ({ toggleModal }) => {
-    const { Projectid } = useParams(); // Retrieve 'Projectid' from the URL
+const CollaborateModal = ({ toggleModal }) => {
+    const { projectId } = useParams(); // Retrieve 'projectId' from the URL
     const [email, setEmail] = useState('');
     const [emails, setEmails] = useState([]);
     const [suggestions, setSuggestions] = useState([]); // State to hold email suggestions
@@ -15,7 +15,7 @@ const CollborateModal = ({ toggleModal }) => {
         if (email) {
             try {
                 const response = await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/', {
-                    projectid: Projectid, // Use Projectid from useParams
+                    projectid: projectId, // Use projectId from useParams
                     email,
                 });
 
@@ -24,6 +24,7 @@ const CollborateModal = ({ toggleModal }) => {
                     setEmails((prev) => [...prev, email]);
                     setEmail(''); // Clear input field
                     setSuggestions([]); // Clear suggestions
+                    setError(''); // Clear error
                     toggleModal(); // Close the modal
                 } else {
                     setError('Failed to add email.');
@@ -42,7 +43,7 @@ const CollborateModal = ({ toggleModal }) => {
           try {
             const response = await axios.delete(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/remove`, {
               params: {
-                projectid: projectIdInt,
+                projectid: projectId, // Correct variable usage
                 user_email: emailToRemove,
               },
             });
@@ -162,8 +163,4 @@ const CollborateModal = ({ toggleModal }) => {
     );
 };
 
-export default CollborateModal;
-
-
-
-
+export default CollaborateModal;

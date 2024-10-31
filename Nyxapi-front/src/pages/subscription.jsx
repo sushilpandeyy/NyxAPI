@@ -23,7 +23,7 @@ const Subscription = () => {
           <li>✅ No Expiry</li>
         </ul>
         <button className="w-full px-4 py-2 mt-4 font-semibold text-white bg-gradient-to-r from-[#5C66EB] to-[#6C63FF] rounded-md hover:from-[#6C63FF] hover:to-[#7B63FF] shadow-lg">
-          Get Started with Free Tier
+          Subscribed
         </button>
       </div>
     </div>

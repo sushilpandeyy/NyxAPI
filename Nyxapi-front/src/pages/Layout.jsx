@@ -61,7 +61,7 @@ const Layout = () => {
               }
             >
               <FiShare2 className="mr-3 text-green-400" />
-              <span className="text-sm">Share</span>
+              <span className="text-sm">Shared Projects</span>
             </NavLink>
 
             <NavLink 
