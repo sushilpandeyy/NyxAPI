@@ -20,11 +20,10 @@ const CreateEndpoint = () => {
 
     try {
       await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/', payload);
-      alert('Endpoint created successfully');
-      setEndpoint('');
+      setEndpoint(''); // Clear the input
+      window.location.reload(); // Reload the page on success
     } catch (error) {
       console.error('Error creating endpoint:', error);
-      alert('Failed to create endpoint');
     }
   };
 
