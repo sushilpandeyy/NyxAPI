@@ -11,15 +11,15 @@ import {
 import App from './App';
 import Homepage from './pages/Homepage';
 import Auth from './components/auth';
-import Endpoint from './components/apiEndpoint';
 import Layout from './pages/Layout';
 import Projects from './pages/Projects';
 import NotFound from './pages/404';
-import SharedWithMe from './pages/SharedWithMe';
 import Usage from './pages/Usage';
 import SavedEndpoints from './components/SavedEndpoints';
 import EndpointScreen from './pages/Endpoints';
 import Shared from './pages/Shared';
+import Settings from './pages/settings';
+import Subscription from './pages/subscription';  // Import Subscription component
 
 // Define router configuration
 const router = createBrowserRouter(
@@ -29,13 +29,15 @@ const router = createBrowserRouter(
       <Route index element={<Homepage />} />
       <Route path="login" element={<Auth />} />
 
-      {/* Dashboard Routes */}
+      {/* Dashboard Routes with Layout */}
       <Route path="dashboard" element={<Layout />}>
         <Route index element={<Projects />} />
-        <Route path="share" element={<Shared />} />
+        <Route path="shared" element={<Shared />} />
         <Route path="endpoints/:Projectid" element={<EndpointScreen />} />
         <Route path="billing" element={<Usage />} />
         <Route path="saved" element={<SavedEndpoints />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="subscription" element={<Subscription />} />  {/* Subscription Route */}
       </Route>
 
       {/* Fallback Route */}

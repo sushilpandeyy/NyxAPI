@@ -1,0 +1,107 @@
+.hh{
+    height: 91vh;
+  }
+  .bb{
+    background-image: url('./assets/bg.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: brightness(0.7);
+  }
+  .bb1{
+    background-image: url('./assets/bg.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  .ttt1{
+    background-image: url('./assets/t1.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: saturate(0.2);
+    height: 45vh;
+  }
+ 
+  .ttt2{
+    background-image: url('./assets/t2.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: saturate(0.2);
+    height: 45vh;
+  }
+  .ttt3{
+    background-image: url('./assets/t3.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: saturate(0.2);
+    height: 45vh;
+  }
+  .yy{
+    background: rgba( 255, 255, 255, 0.25 );
+box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+backdrop-filter: blur( 18.5px );
+-webkit-backdrop-filter: blur( 18.5px );
+border: 1px solid rgba( 255, 255, 255, 0.18 );
+  }
+  .tt{
+    color:rgb(29, 123, 255);
+    
+  }
+  .hov:hover{
+    filter:brightness(1)
+  }
+  .hovv:hover{
+    transition: filter 0.5s ease;
+    filter:saturate(1)
+  }.hh{
+    height: 91vh;
+  }
+  .bb{
+    background-image: url('./assets/bg.jpeg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: brightness(0.9);
+  }
+  .bb1{
+    background-image: url('./assets/bg.jpeg');
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  .ttt1{
+    background-image: url('./assets/t1.jpeg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: saturate(0.2);
+    height: 45vh;
+  }
+ 
+  .ttt2{
+    background-image: url('./assets/t2.jpeg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: saturate(0.2);
+    height: 45vh;
+  }
+  .ttt3{
+    background-image: url('./assets/t3.jpeg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: saturate(0.2);
+    height: 45vh;
+  }
+  .yy{
+    background: rgba( 255, 255, 255, 0.25 );
+box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+backdrop-filter: blur( 18.5px );
+-webkit-backdrop-filter: blur( 18.5px );
+border: 1px solid rgba( 255, 255, 255, 0.18 );
+  }
+  .tt{
+    color:rgb(29, 123, 255);
+    
+  }
+  .hov:hover{
+    filter:brightness(1)
+  }
+  .hovv:hover{
+    transition: filter 0.5s ease;
+    filter:saturate(1)
+  }
