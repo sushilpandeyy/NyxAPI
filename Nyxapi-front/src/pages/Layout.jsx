@@ -4,6 +4,7 @@ import { FiHome, FiShare2, FiBell, FiSettings } from 'react-icons/fi';
 import { MdOutlineSubscriptions } from 'react-icons/md';
 import { CgLogOut } from "react-icons/cg";
 import { BsFillChatDotsFill } from 'react-icons/bs';
+import logo from "../assets/logo.png"
 
 const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -36,7 +37,9 @@ const Layout = () => {
           {/* Logo */}
           <div className="flex items-center mb-8 space-x-2">
             <div className="p-2 bg-blue-500 rounded-full">
-              <BsFillChatDotsFill size={24} />
+              {/*<BsFillChatDotsFill size={24} />*/}
+              <img src={logo} alt="" className="rounded-full w-12 h-12" />
+
             </div>
             <h1 className="text-xl font-semibold">NyxAPI</h1>
           </div>

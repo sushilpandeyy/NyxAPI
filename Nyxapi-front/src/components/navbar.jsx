@@ -16,14 +16,14 @@ const Navbar = () => {
             <a href="/" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
               Home
             </a>
-            <a href="/about" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
+            <a href="" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
               Features
             </a>
-            <a href="/services" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
+            <a href="" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
               About
             </a>
-            <a href="/contact" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
-              Contact
+            <a href="/login" className={`px-3 py-2 rounded-md text-lg roboto-flex-regular `}>
+              Login
             </a>
           </div>          
         </div>
