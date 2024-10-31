@@ -57,11 +57,11 @@ const EndpointList = () => {
         {endpoints.map((endpoint) => (
           <div key={endpoint.endpointid} className="bg-gray-800 rounded-md shadow-md">
             <div className="flex items-center justify-between p-4">
-              <Link to={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} className="flex-grow font-mono text-sm text-indigo-400">
-                http://{projectIdInt}.nyxapi.com/{endpoint.Endpoint}
+              <Link to={`https://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} className="flex-grow font-mono text-sm text-indigo-400">
+                https://{projectIdInt}.nyxapi.com/{endpoint.Endpoint}
               </Link>
-              <OpenUrlButton url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} />
-              <CopyButton url={`http://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} />
+              <OpenUrlButton url={`https://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} />
+              <CopyButton url={`https://${projectIdInt}.nyxapi.com/${endpoint.Endpoint}`} />
               <button
                 onClick={() => toggleEndpointEditor(endpoint.endpointid)}
                 className="flex items-center px-4 py-2 bg-indigo-600 rounded focus:outline-none"
