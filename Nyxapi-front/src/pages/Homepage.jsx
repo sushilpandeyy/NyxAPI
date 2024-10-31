@@ -19,7 +19,7 @@ const HomePage = () => {
             </p>
             <div className="mt-8 flex justify-center">
               <a
-                href="/get-started"
+                href="/dashboard"
                 className="px-6 py-2 border border-transparent text-base font-medium rounded-3xl text-white bg-indigo-500 hover:bg-indigo-600 md:py-3 md:text-lg md:px-9">
                 Get Started
               </a> 
