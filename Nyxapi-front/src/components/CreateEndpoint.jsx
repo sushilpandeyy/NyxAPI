@@ -5,6 +5,7 @@ import CollborateModal from './CollborateModal';
 
 const CreateEndpoint = () => {
   const { Projectid } = useParams();
+  console.log(Projectid)
   const [endpoint, setEndpoint] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -63,7 +64,7 @@ const CreateEndpoint = () => {
         </button>
       </div>
       
-      {isModalOpen && <CollborateModal toggleModal={toggleModal} />}
+      {isModalOpen && <CollborateModal toggleModal={toggleModal} proj={Projectid} />}
     </div>
   );
 };

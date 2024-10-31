@@ -1,31 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const CollaborateModal = ({ toggleModal }) => {
-    const { projectId } = useParams(); // Retrieve 'projectId' from the URL
+const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
+    const projectId=proj
+   
     const [email, setEmail] = useState('');
     const [emails, setEmails] = useState([]);
     const [suggestions, setSuggestions] = useState([]); // State to hold email suggestions
     const [error, setError] = useState('');
+
+    // Fetch shared emails on component mount
+    useEffect(() => {
+        const fetchSharedEmails = async () => {
+            try {
+                const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/${projectId}`);
+                setEmails(response.data.emails);
+            } catch (error) {
+                console.error('Error fetching shared emails:', error);
+                setError('Failed to fetch shared emails.');
+            }
+        };
+        fetchSharedEmails();
+    }, [projectId]);
 
     // Function to handle adding email
     const handleAddEmail = async (e) => {
         e.preventDefault();
         if (email) {
             try {
-                const response = await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/', {
-                    projectid: projectId, // Use projectId from useParams
-                    email,
-                });
-
-                if (response.status === 200) {
-                    // Add the email to the list
+               
+                const response = await axios.post(
+                    'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/',
+                    {
+                        projectid: projectId,
+                        email,
+                    },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json', // Ensure content-type is specified
+                        },
+                    }
+                );
+    
+                if (response.status === 200 && response.data.msg === "User added to Shared array") {
                     setEmails((prev) => [...prev, email]);
                     setEmail(''); // Clear input field
                     setSuggestions([]); // Clear suggestions
                     setError(''); // Clear error
-                    toggleModal(); // Close the modal
                 } else {
                     setError('Failed to add email.');
                 }
@@ -35,34 +57,33 @@ const CollaborateModal = ({ toggleModal }) => {
             }
         }
     };
+    
 
     const handleRemoveEmail = async (emailToRemove) => {
         const confirmRemove = window.confirm(`Are you sure you want to remove ${emailToRemove}?`);
-        
+
         if (confirmRemove) {
-          try {
-            const response = await axios.delete(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/remove`, {
-              params: {
-                projectid: projectId, // Correct variable usage
-                user_email: emailToRemove,
-              },
-            });
-    
-            if (response.status === 200) {
-              // Remove the email from the local state
-              setEmails((prev) => prev.filter((email) => email !== emailToRemove));
-              // Optionally show success message
-              toggleModal(); // Close the modal on success
-            } else {
-              setError('Failed to remove email.');
+            try {
+                const response = await axios.delete('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/remove', {
+                    params: {
+                        projectid: projectId,
+                        user_email: emailToRemove,
+                    },
+                });
+
+                if (response.status === 200) {
+                    setEmails((prev) => prev.filter((email) => email !== emailToRemove));
+                    setError('');
+                } else {
+                    setError('Failed to remove email.');
+                }
+            } catch (error) {
+                console.error('Error removing email:', error);
+                setError('Failed to remove email.');
             }
-          } catch (error) {
-            console.error('Error removing email:', error);
-            setError('Failed to remove email.');
-          }
         }
-      };
-      
+    };
+
     // Function to fetch email suggestions
     const fetchEmailSuggestions = async (initials) => {
         try {
@@ -79,17 +100,17 @@ const CollaborateModal = ({ toggleModal }) => {
         const input = e.target.value;
         setEmail(input);
 
-        if (input.length >= 2) { // Trigger fetch for suggestions if input has at least 2 characters
+        if (input.length >= 2) {
             fetchEmailSuggestions(input);
         } else {
-            setSuggestions([]); // Clear suggestions if input is less than 2 characters
+            setSuggestions([]);
         }
     };
 
     // Function to handle suggestion click
     const handleSuggestionClick = (suggestedEmail) => {
         setEmail(suggestedEmail);
-        setSuggestions([]); // Hide suggestions after selection
+        setSuggestions([]);
     };
 
     return (
@@ -102,8 +123,8 @@ const CollaborateModal = ({ toggleModal }) => {
                         <input
                             type="email"
                             value={email}
-                            placeholder='Enter Name for Recommendations'
-                            onChange={handleEmailChange} // Update on input change
+                            placeholder="Enter Name for Recommendations"
+                            onChange={handleEmailChange}
                             className="w-full px-3 py-2 mt-1 bg-gray-700 text-white rounded focus:outline-none"
                             required
                         />
