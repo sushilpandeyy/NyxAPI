@@ -1,5 +1,4 @@
 # NyxAPI
-
 NyxAPI is a mock API platform that accelerates frontend development by simulating APIs, allowing developers to work independently of backend readiness. It helps streamline workflows by providing customizable endpoints, realistic responses, and early API contract definitions.
 
 ## Key Features
