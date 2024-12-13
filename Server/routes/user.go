@@ -1,12 +1,13 @@
 package routes
 
 import (
-	userservice "NyxAPI/services"
+	"NyxAPI/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 func UserRoute(router *gin.Engine) {
-	router.GET("/hey", userservice.HeyHandler)
-	router.POST("/users", userservice.CreateUserHandler)
+	router.GET("/hey", services.HeyHandler)
+	router.POST("/users/register", services.CreateUserHandler)
+	router.POST("/users/login", services.GetUser)
 }

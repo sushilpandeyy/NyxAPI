@@ -37,10 +37,8 @@ type User struct {
 type Project struct {
 	gorm.Model
 	ID          uint       `gorm:"primaryKey;autoIncrement"`
-	ProjectID   uint       `gorm:"unique;not null"`
 	Title       string     `gorm:"type:varchar(255);not null"`
 	UserID      uint       `gorm:"not null"`
-	User        User       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Description string     `gorm:"type:text"`
 	Img         string     `gorm:"type:varchar(255)"`
 	Shared      []uint     `gorm:"type:integer[]"`

@@ -15,7 +15,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger("UserService")
+logger = logging.getLogger("service")
 
 # Update the hashing context to use Argon2
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")

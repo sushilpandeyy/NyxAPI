@@ -19,6 +19,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// App structure holds the database, router, server, and logger instances
 type App struct {
 	DB     *gorm.DB
 	Router *gin.Engine
@@ -26,14 +27,14 @@ type App struct {
 	logger *slog.Logger
 }
 
-// NewApp initializes the application with database, router, and logger.
+// NewApp initializes the application components such as the database and routes
 func NewApp() (*App, error) {
-	// Structured logging setup
+	// Initialize logger
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}))
 
-	// Set Gin mode based on the environment
+	// Set Gin mode based on environment
 	env := os.Getenv("GIN_MODE")
 	switch env {
 	case "release":
@@ -52,21 +53,21 @@ func NewApp() (*App, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	// Configure database and auto-migrate models
+	// Set the global DB instance and migrate models
 	models.SetDB(db)
 	if err := db.AutoMigrate(&models.User{}, &models.Project{}, &models.Usage{}, &models.Endpoint{}); err != nil {
 		logger.Error("Database migration failed", slog.String("error", err.Error()))
 		return nil, fmt.Errorf("database migration failed: %w", err)
 	}
 
-	// Setup Gin router
+	// Initialize Gin router and middlewares
 	router := gin.New()
 	router.Use(
 		gin.LoggerWithConfig(gin.LoggerConfig{
 			SkipPaths: []string{"/health"},
 		}),
 		gin.Recovery(),
-		cors.Default(), // Default CORS policy
+		cors.Default(),
 	)
 
 	// Health check endpoint
@@ -77,8 +78,9 @@ func NewApp() (*App, error) {
 		})
 	})
 
-	// Initialize routes
+	// Register application routes
 	routes.UserRoute(router)
+	routes.ProjectRoute(router)
 
 	return &App{
 		DB:     db,
@@ -87,7 +89,7 @@ func NewApp() (*App, error) {
 	}, nil
 }
 
-// Start starts the HTTP server
+// Start launches the HTTP server
 func (a *App) Start(addr string) error {
 	a.server = &http.Server{
 		Addr:         addr,
@@ -104,18 +106,18 @@ func (a *App) Start(addr string) error {
 	return nil
 }
 
-// Shutdown performs graceful shutdown of the application
+// Shutdown gracefully shuts down the application
 func (a *App) Shutdown(ctx context.Context) error {
 	var errs []error
 
-	// Shutdown HTTP server
+	// Shutdown the HTTP server
 	if a.server != nil {
 		if err := a.server.Shutdown(ctx); err != nil {
 			errs = append(errs, fmt.Errorf("server shutdown error: %w", err))
 		}
 	}
 
-	// Close database connection
+	// Close the database connection
 	if a.DB != nil {
 		sqlDB, err := a.DB.DB()
 		if err != nil {
@@ -125,7 +127,7 @@ func (a *App) Shutdown(ctx context.Context) error {
 		}
 	}
 
-	// Log and return any shutdown errors
+	// Log errors if shutdown is not clean
 	if len(errs) > 0 {
 		a.logger.Error("Shutdown encountered errors", slog.Any("errors", errs))
 		return fmt.Errorf("shutdown errors: %v", errs)
@@ -136,18 +138,18 @@ func (a *App) Shutdown(ctx context.Context) error {
 }
 
 func main() {
-	// Handle OS signals for graceful shutdown
+	// Create a context for handling OS signals
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	// Initialize application
+	// Initialize the application
 	app, err := NewApp()
 	if err != nil {
 		slog.New(slog.NewJSONHandler(os.Stderr, nil)).Error("Application initialization failed", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
 
-	// Start server in a goroutine
+	// Start the server in a separate goroutine
 	go func() {
 		if err := app.Start(":8080"); err != nil {
 			app.logger.Error("Server startup failed", slog.String("error", err.Error()))
@@ -155,11 +157,11 @@ func main() {
 		}
 	}()
 
-	// Wait for termination signal
+	// Wait for a termination signal
 	<-ctx.Done()
 	app.logger.Info("Shutdown signal received")
 
-	// Perform graceful shutdown
+	// Perform a graceful shutdown with a timeout
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := app.Shutdown(shutdownCtx); err != nil {
