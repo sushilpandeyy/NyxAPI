@@ -33,7 +33,13 @@ func ConnectToDB() (*gorm.DB, error) {
 
 	once.Do(func() {
 		// Retrieve the environment variables for PostgreSQL connection
-		config := DatabaseConfig{}
+		config := DatabaseConfig{
+			User:     "neondb_owner",
+			Password: "sZ2uNCIlE8MA",
+			Host:     "ep-royal-art-a1o7c6ko.ap-southeast-1.aws.neon.tech",
+			Name:     "neondb",
+			SSLMode:  "require",
+		}
 
 		// Validate required configuration
 		if connectionError = validateConfig(config); connectionError != nil {
