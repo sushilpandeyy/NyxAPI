@@ -1,6 +1,27 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"fmt"
+
+	"gorm.io/gorm"
+)
+
+var db *gorm.DB
+
+func SetDB(database *gorm.DB) {
+	if database == nil {
+		panic("Cannot set a nil database instance")
+	}
+	db = database
+	fmt.Println("Database instance successfully set")
+}
+
+func GetDB() *gorm.DB {
+	if db == nil {
+		panic("Database instance is not initialized. Call SetDB() during initialization")
+	}
+	return db
+}
 
 type User struct {
 	gorm.Model
@@ -18,11 +39,11 @@ type Project struct {
 	ID          uint       `gorm:"primaryKey;autoIncrement"`
 	ProjectID   uint       `gorm:"unique;not null"`
 	Title       string     `gorm:"type:varchar(255);not null"`
-	UserID      uint       `gorm:"not null"`                                       // Foreign key referencing User
-	User        User       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` // Relationship to User
+	UserID      uint       `gorm:"not null"`
+	User        User       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Description string     `gorm:"type:text"`
 	Img         string     `gorm:"type:varchar(255)"`
-	Shared      []uint     `gorm:"type:integer[]"` // Represents ARRAY(Integer)
+	Shared      []uint     `gorm:"type:integer[]"`
 	Endpoints   []Endpoint `gorm:"foreignKey:ProjectID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
@@ -30,18 +51,18 @@ type Endpoint struct {
 	gorm.Model
 	ID        uint     `gorm:"primaryKey;autoIncrement"`
 	Endpoint  string   `gorm:"type:varchar(255);not null"`
-	ProjectID uint     `gorm:"not null"`                                       // Foreign key referencing Project
-	Project   Project  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"` // Relationship to Project
+	ProjectID uint     `gorm:"not null"`
+	Project   Project  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Working   bool     `gorm:"type:boolean;default:true"`
-	Locked    *int     `gorm:"type:integer"` // Nullable field
-	APIType   []string `gorm:"type:text[]"`  // Represents ARRAY(String)
+	Locked    *int     `gorm:"type:integer"`
+	APIType   []string `gorm:"type:text[]"`
 	Payload   string   `gorm:"type:text"`
 }
 
 type Usage struct {
 	gorm.Model
 	ID        uint `gorm:"primaryKey;autoIncrement"`
-	UserID    uint `gorm:"not null"` // Foreign key referencing User
-	Project   uint `gorm:"not null"` // Referencing Project by ID
+	UserID    uint `gorm:"not null"`
+	Project   uint `gorm:"not null"`
 	Endpoints uint `gorm:"not null"`
 }

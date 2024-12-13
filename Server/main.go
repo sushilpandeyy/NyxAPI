@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"log/slog"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -20,76 +22,148 @@ import (
 type App struct {
 	DB     *gorm.DB
 	Router *gin.Engine
+	server *http.Server
+	logger *slog.Logger
 }
 
+// NewApp initializes the application with database, router, and logger.
 func NewApp() (*App, error) {
-	gin.SetMode(gin.ReleaseMode)
+	// Structured logging setup
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
 
+	// Set Gin mode based on the environment
+	env := os.Getenv("GIN_MODE")
+	switch env {
+	case "release":
+		gin.SetMode(gin.ReleaseMode)
+	case "test":
+		gin.SetMode(gin.TestMode)
+	default:
+		gin.SetMode(gin.DebugMode)
+		logger.Info("Defaulting to debug mode")
+	}
+
+	// Connect to the database
 	db, err := config.ConnectToDB()
 	if err != nil {
-		return nil, err
+		logger.Error("Database connection failed", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	// Configure database and auto-migrate models
+	models.SetDB(db)
 	if err := db.AutoMigrate(&models.User{}, &models.Project{}, &models.Usage{}, &models.Endpoint{}); err != nil {
-		return nil, err
+		logger.Error("Database migration failed", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("database migration failed: %w", err)
 	}
 
+	// Setup Gin router
 	router := gin.New()
-	router.Use(gin.Logger(), gin.Recovery())
-	router.Use(cors.Default())
+	router.Use(
+		gin.LoggerWithConfig(gin.LoggerConfig{
+			SkipPaths: []string{"/health"},
+		}),
+		gin.Recovery(),
+		cors.Default(), // Default CORS policy
+	)
+
+	// Health check endpoint
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "healthy"})
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "healthy",
+			"timestamp": time.Now().UTC(),
+		})
 	})
 
-	routes.RegisterHeyRoute(router)
+	// Initialize routes
+	routes.UserRoute(router)
 
-	return &App{DB: db, Router: router}, nil
+	return &App{
+		DB:     db,
+		Router: router,
+		logger: logger,
+	}, nil
 }
 
-func (a *App) start(addr string) *http.Server {
-	srv := &http.Server{
+// Start starts the HTTP server
+func (a *App) Start(addr string) error {
+	a.server = &http.Server{
 		Addr:         addr,
 		Handler:      a.Router,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
-	go func() {
-		log.Printf("Starting server on %s", addr)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server startup error: %v", err)
-		}
-	}()
+	a.logger.Info("Starting server", slog.String("address", addr))
+	if err := a.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("server startup error: %w", err)
+	}
+	return nil
+}
 
-	return srv
+// Shutdown performs graceful shutdown of the application
+func (a *App) Shutdown(ctx context.Context) error {
+	var errs []error
+
+	// Shutdown HTTP server
+	if a.server != nil {
+		if err := a.server.Shutdown(ctx); err != nil {
+			errs = append(errs, fmt.Errorf("server shutdown error: %w", err))
+		}
+	}
+
+	// Close database connection
+	if a.DB != nil {
+		sqlDB, err := a.DB.DB()
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to get database connection: %w", err))
+		} else if err := sqlDB.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("database close error: %w", err))
+		}
+	}
+
+	// Log and return any shutdown errors
+	if len(errs) > 0 {
+		a.logger.Error("Shutdown encountered errors", slog.Any("errors", errs))
+		return fmt.Errorf("shutdown errors: %v", errs)
+	}
+
+	a.logger.Info("Server gracefully stopped")
+	return nil
 }
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(),
-		syscall.SIGINT,
-		syscall.SIGTERM,
-	)
+	// Handle OS signals for graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	// Initialize application
 	app, err := NewApp()
 	if err != nil {
-		log.Fatalf("Failed to initialize application: %v", err)
+		slog.New(slog.NewJSONHandler(os.Stderr, nil)).Error("Application initialization failed", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
 
-	srv := app.start(":8080")
+	// Start server in a goroutine
+	go func() {
+		if err := app.Start(":8080"); err != nil {
+			app.logger.Error("Server startup failed", slog.String("error", err.Error()))
+			os.Exit(1)
+		}
+	}()
 
+	// Wait for termination signal
 	<-ctx.Done()
+	app.logger.Info("Shutdown signal received")
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// Perform graceful shutdown
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	if err := srv.Shutdown(shutdownCtx); err != nil {
-		log.Printf("Server shutdown error: %v", err)
+	if err := app.Shutdown(shutdownCtx); err != nil {
+		app.logger.Error("Graceful shutdown failed", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-
-	if err := config.CloseDB(); err != nil {
-		log.Printf("Database close error: %v", err)
-	}
-
-	log.Println("Server gracefully stopped")
 }
