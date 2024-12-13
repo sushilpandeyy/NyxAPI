@@ -30,7 +30,7 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Project{}, &models.Usage{}, &models.Endpoint{}); err != nil {
 		return nil, err
 	}
 
