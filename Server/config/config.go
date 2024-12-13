@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// DatabaseConfig holds the database configuration
+// DatabaseConfig holds the database connection parameters
 type DatabaseConfig struct {
 	User     string
 	Password string
@@ -21,18 +21,18 @@ type DatabaseConfig struct {
 	SSLMode  string
 }
 
-// DB holds the database connection
+// Singleton instance for database connection
 var (
 	db   *gorm.DB
 	once sync.Once
 )
 
-// ConnectToDB establishes a connection to the PostgreSQL database using GORM
+// ConnectToDB initializes and returns a database connection
 func ConnectToDB() (*gorm.DB, error) {
 	var connectionError error
 
 	once.Do(func() {
-		// Retrieve the environment variables for PostgreSQL connection
+		// Define database connection configuration
 		config := DatabaseConfig{
 			User:     "neondb_owner",
 			Password: "sZ2uNCIlE8MA",
@@ -41,27 +41,30 @@ func ConnectToDB() (*gorm.DB, error) {
 			SSLMode:  "require",
 		}
 
-		// Validate required configuration
-		if connectionError = validateConfig(config); connectionError != nil {
+		// Validate configuration
+		if err := validateConfig(config); err != nil {
+			connectionError = err
 			return
 		}
 
-		// Construct the connection string
-		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=%s",
-			config.Host, config.User, config.Password, config.Name, config.SSLMode)
+		// Create DSN (Data Source Name) string
+		dsn := fmt.Sprintf(
+			"host=%s user=%s password=%s dbname=%s sslmode=%s",
+			config.Host, config.User, config.Password, config.Name, config.SSLMode,
+		)
 
-		// Configure GORM logger
+		// Configure logger for GORM
 		newLogger := logger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags),
 			logger.Config{
 				SlowThreshold:             time.Second,   // Slow SQL threshold
 				LogLevel:                  logger.Silent, // Log level
-				IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
+				IgnoreRecordNotFoundError: true,          // Ignore "record not found" error
 				Colorful:                  false,         // Disable color
 			},
 		)
 
-		// Open the database connection with GORM
+		// Open database connection
 		db, connectionError = gorm.Open(postgres.Open(dsn), &gorm.Config{
 			Logger: newLogger,
 		})
@@ -69,32 +72,27 @@ func ConnectToDB() (*gorm.DB, error) {
 			return
 		}
 
-		// Get the underlying SQL database and configure connection pool
+		// Configure SQL database settings
 		sqlDB, err := db.DB()
 		if err != nil {
 			connectionError = fmt.Errorf("failed to get SQL database: %w", err)
 			return
 		}
 
-		// Configure connection pool
 		sqlDB.SetMaxOpenConns(25)
 		sqlDB.SetMaxIdleConns(25)
 		sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
-		// Ping the database to verify the connection
-		if connectionError = sqlDB.Ping(); connectionError != nil {
+		// Test database connection
+		if err := sqlDB.Ping(); err != nil {
+			connectionError = fmt.Errorf("failed to ping database: %w", err)
 			return
 		}
 
-		// Optionally, fetch the PostgreSQL version to confirm connection
-		var version string
-		if connectionError = db.Raw("SELECT version()").Scan(&version).Error; connectionError != nil {
-			return
-		}
-
-		log.Printf("Connected to PostgreSQL! Version: %s\n", version)
+		log.Println("Successfully connected to the database!")
 	})
 
+	// Return error if connection failed
 	if connectionError != nil {
 		return nil, connectionError
 	}
@@ -102,7 +100,7 @@ func ConnectToDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-// validateConfig checks if all required database configuration fields are present
+// validateConfig checks if all database configuration parameters are set
 func validateConfig(config DatabaseConfig) error {
 	if config.User == "" {
 		return fmt.Errorf("DB_USER is not set")
