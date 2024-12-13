@@ -33,13 +33,7 @@ func ConnectToDB() (*gorm.DB, error) {
 
 	once.Do(func() {
 		// Define database connection configuration
-		config := DatabaseConfig{
-			User:     "neondb_owner",
-			Password: "sZ2uNCIlE8MA",
-			Host:     "ep-royal-art-a1o7c6ko.ap-southeast-1.aws.neon.tech",
-			Name:     "neondb",
-			SSLMode:  "require",
-		}
+		config := DatabaseConfig{}
 
 		// Validate configuration
 		if err := validateConfig(config); err != nil {
