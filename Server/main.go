@@ -81,6 +81,7 @@ func NewApp() (*App, error) {
 	// Register application routes
 	routes.UserRoute(router)
 	routes.ProjectRoute(router)
+	routes.Endpointroutes(router)
 
 	return &App{
 		DB:     db,

@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -48,14 +49,14 @@ type Project struct {
 
 type Endpoint struct {
 	gorm.Model
-	ID        uint     `gorm:"primaryKey;autoIncrement"`
-	Endpoint  string   `gorm:"type:varchar(255);not null"`
-	ProjectID uint     `gorm:"not null"`
-	Project   Project  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Working   bool     `gorm:"type:boolean;default:true"`
-	Locked    *int     `gorm:"type:integer"`
-	APIType   []string `gorm:"type:text[]"`
-	Payload   string   `gorm:"type:text"`
+	ID        uint           `gorm:"primaryKey;autoIncrement"`
+	Endpoint  string         `gorm:"type:varchar(255)"`
+	ProjectID uint           `gorm:"not null"`
+	Project   Project        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Working   bool           `gorm:"type:boolean;default:true"`
+	Locked    *int           `gorm:"type:integer"`
+	APIType   pq.StringArray `gorm:"type:text[]"`
+	Payload   string         `gorm:"type:text"`
 }
 
 type Usage struct {
