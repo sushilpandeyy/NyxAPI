@@ -24,7 +24,7 @@ const CreateProject = ({ toggleModal }) => {
         const storedToken = sessionStorage.getItem('token');
         if (userData) {
             const user = JSON.parse(userData);
-            setUserId(user.user_id);
+            setUserId(user.id);
             setToken(storedToken);
         } else {
             setError('User is not authenticated.');
@@ -36,13 +36,13 @@ const CreateProject = ({ toggleModal }) => {
         setLoading(true);
         const formData = {
             title: title,
-            userid: userId,
-            Description: description,
-            Img: imageUrl
+            userId: userId,
+            description: description,
+            img: imageUrl
         };
 
         try {
-            const response = await fetch("http://localhost:8080/project/", {
+            const response = await fetch("http://localhost:8080/project/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -25,8 +25,7 @@ const Auth = () => {
       });
 
       if (response.data) {
-        // Store session data for both login and signup
-        const user = response.data.user;
+        const user = response.data.user || response.data;
         console.log(response)
         sessionStorage.setItem('user', JSON.stringify(user));
 
