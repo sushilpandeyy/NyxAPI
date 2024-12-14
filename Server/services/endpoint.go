@@ -2,10 +2,12 @@ package services
 
 import (
 	"NyxAPI/models"
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -92,10 +94,11 @@ func Createendpoint(c *gin.Context) {
 }
 
 func UpdatePayload(c *gin.Context) {
+	Endpointid := c.Param("EndpointID")
+
 	var payloadInput struct {
-		Endpoint   string `json:"endpoint" binding:"omitempty"`
-		EndpointID uint   `json:"endpointid" binding:"required"`
-		Payload    string `json:"payload"`
+		Endpoint string `json:"endpoint" binding:"omitempty"`
+		Payload  string `json:"payload"`
 	}
 	if err := c.ShouldBindJSON(&payloadInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -106,7 +109,7 @@ func UpdatePayload(c *gin.Context) {
 	encodedPayload := encodePayload(payloadInput.Payload)
 	var endpoint models.Endpoint
 
-	if err := db.Where("id = ?", payloadInput.EndpointID).First(&endpoint).Error; err != nil {
+	if err := db.Where("id = ?", Endpointid).First(&endpoint).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Endpoint not found"})
 			return
@@ -148,4 +151,134 @@ func Infoaboutpayload(c *gin.Context) {
 	}
 	endpoint.Payload = decodePayload(endpoint.Payload)
 	c.JSON(http.StatusOK, endpoint)
+}
+
+func UpdateAPIType(c *gin.Context) {
+	EndpointID := c.Param("endpointID")
+
+	// Input structure with APIType as a slice of strings
+	var input struct {
+		APIType []string `json:"apiType" binding:"required"`
+	}
+
+	// Validate the input
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := models.GetDB()
+	var endpoint models.Endpoint
+
+	// Fetch the endpoint by ID
+	if err := db.Where("id = ?", EndpointID).First(&endpoint).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Endpoint not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch endpoint", "cause": err.Error()})
+		return
+	}
+
+	// Update the APIType field
+	if err := db.Model(&endpoint).Update("api_type", pq.StringArray(input.APIType)).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update APIType", "cause": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "APIType updated successfully",
+		"endpoint": gin.H{
+			"id":      endpoint.ID,
+			"apiType": input.APIType,
+		},
+	})
+}
+
+func UpdateEndpointScheme(c *gin.Context) {
+	EndpointID := c.Param("endpointID")
+
+	var input struct {
+		Endpoint string `json:"endpoint" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := models.GetDB()
+	var endpoint models.Endpoint
+
+	if err := db.Where("id = ?", EndpointID).First(&endpoint).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Endpoint not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch endpoint", "cause": err.Error()})
+		return
+	}
+
+	if err := db.Model(&endpoint).Update("endpoint", input.Endpoint).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update Endpoint", "cause": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Endpoint updated successfully",
+		"endpoint": gin.H{
+			"id":       endpoint.ID,
+			"endpoint": input.Endpoint,
+		},
+	})
+}
+
+func UpdateWorking(c *gin.Context) {
+	endpointID := c.Param("endpointID")
+
+	if endpointID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Endpoint ID is required",
+		})
+		return
+	}
+
+	db := models.GetDB()
+	var endpoint models.Endpoint
+
+	result := db.Where("id = ?", endpointID).First(&endpoint)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "Endpoint not found",
+			})
+			return
+		}
+
+		log.Printf("Database error: %v", result.Error)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to fetch endpoint",
+			"cause": result.Error.Error(),
+		})
+		return
+	}
+
+	newWorkingStatus := !endpoint.Working
+
+	if err := db.Model(&endpoint).Update("working", newWorkingStatus).Error; err != nil {
+		log.Printf("Update error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to toggle Working status",
+			"cause": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Working status toggled successfully",
+		"endpoint": gin.H{
+			"id":      endpoint.ID,
+			"working": newWorkingStatus,
+		},
+	})
 }
