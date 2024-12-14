@@ -37,6 +37,7 @@ type User struct {
 type Project struct {
 	gorm.Model
 	ID          uint       `gorm:"primaryKey;autoIncrement"`
+	Subdomain   int        `gorm:"uniqueIndex;not null"`
 	Title       string     `gorm:"type:varchar(255);not null"`
 	UserID      uint       `gorm:"not null"`
 	Description string     `gorm:"type:text"`

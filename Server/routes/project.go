@@ -8,4 +8,5 @@ import (
 
 func ProjectRoute(router *gin.Engine) {
 	router.POST("/project/create", services.CreateProjectHandler)
+	router.GET("/project/:userid", services.GetallProject)
 }
