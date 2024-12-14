@@ -91,7 +91,7 @@ const Projects = () => {
       className="relative p-6 transition-transform transform bg-gray-800 rounded-lg shadow-lg cursor-pointer bg-opacity-70 hover:scale-105 hover:rotate-1 hover:bg-gray-700 hover:shadow-lg hover:shadow-indigo-500/50"
       onClick={() => {
         if (project.ID) {
-          window.location.href = `/dashboard/endpoints/${project.ID}`;
+          window.location.href = `/dashboard/endpoints/${project.ID}/${project.Subdomain}`;
         } else {
           console.error('Project ID is undefined:', project);
         }

@@ -33,7 +33,7 @@ const router = createBrowserRouter(
       <Route path="dashboard" element={<Layout />}>
         <Route index element={<Projects />} />
         <Route path="shared" element={<Shared />} />
-        <Route path="endpoints/:Projectid" element={<EndpointScreen />} />
+        <Route path="endpoints/:Projectid/:Subdomain" element={<EndpointScreen />} />
         <Route path="billing" element={<Usage />} />
         <Route path="saved" element={<SavedEndpoints />} />
         <Route path="settings" element={<Settings />} />

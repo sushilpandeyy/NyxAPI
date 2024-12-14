@@ -4,8 +4,7 @@ import axios from 'axios';
 import CollborateModal from './CollborateModal';
 
 const CreateEndpoint = () => {
-  const { Projectid } = useParams();
-  console.log(Projectid)
+  const { Projectid, Subdomain } = useParams();
   const [endpoint, setEndpoint] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -13,16 +12,18 @@ const CreateEndpoint = () => {
 
   const handleCreateEndpoint = async () => {
     const payload = {
-      Endpoint: endpoint,
-      Projectid: parseInt(Projectid, 10),
-      Apitype: 'GET',
+      endpoint: endpoint,
+      projectId: parseInt(Projectid, 10),
+      working: true,
+      locked: 0,
+      Apitype: ["GET", "POST"],
       Payload: JSON.stringify({})
     };
-
     try {
-      await axios.post('http://localhost:8080/endpoints/', payload);
-      setEndpoint(''); // Clear the input
-      window.location.reload(); // Reload the page on success
+      console.log(payload)
+      await axios.post('http://localhost:8080/endpoint/create', payload);
+      setEndpoint(''); 
+      window.location.reload();  
     } catch (error) {
       console.error('Error creating endpoint:', error);
     }
@@ -38,7 +39,7 @@ const CreateEndpoint = () => {
       
       <div className="flex items-center mb-4">
         <span className="inline-block p-2 font-mono text-sm text-blue-300 bg-gray-800 rounded-l whitespace-nowrap">
-          {`http://${Projectid}.nyxapi.com/`}
+          {`http://${Subdomain}.nyxapi.com/`}
         </span>
         <input
           type="text"

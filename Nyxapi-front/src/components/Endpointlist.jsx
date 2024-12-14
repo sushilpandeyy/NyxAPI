@@ -24,7 +24,7 @@ const EndpointList = () => {
   useEffect(() => {
     const fetchEndpointData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/endpoints/${projectIdInt}`);
+        const response = await axios.get(`http://localhost:8080/endpoint/${projectIdInt}`);
         setEndpoints(response.data.endpoint_info);
         console.log(response.data);
       } catch (err) {
