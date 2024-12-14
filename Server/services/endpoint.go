@@ -54,7 +54,6 @@ func Createendpoint(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": "Duplicate endpoint for the given project"})
 		return
 	} else if err != nil && err != gorm.ErrRecordNotFound {
-		// Handle any other errors
 		log.Printf("Error checking duplicate endpoint: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
 		return
@@ -90,4 +89,63 @@ func Createendpoint(c *gin.Context) {
 			"payload":   decodePayload(newEndpoint.Payload),
 		},
 	})
+}
+
+func UpdatePayload(c *gin.Context) {
+	var payloadInput struct {
+		Endpoint   string `json:"endpoint" binding:"omitempty"`
+		EndpointID uint   `json:"endpointid" binding:"required"`
+		Payload    string `json:"payload"`
+	}
+	if err := c.ShouldBindJSON(&payloadInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := models.GetDB()
+	encodedPayload := encodePayload(payloadInput.Payload)
+	var endpoint models.Endpoint
+
+	if err := db.Where("id = ?", payloadInput.EndpointID).First(&endpoint).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Endpoint not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch endpoint", "cause": err.Error()})
+		return
+	}
+
+	if err := db.Model(&endpoint).Update("payload", encodedPayload).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update payload", "cause": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Payload updated successfully",
+		"endpoint": gin.H{
+			"id":        endpoint.ID,
+			"projectId": endpoint.ProjectID,
+			"payload":   decodePayload(endpoint.Payload),
+		},
+	})
+
+}
+
+func Infoaboutpayload(c *gin.Context) {
+	Endpointid := c.Param("EndpointID")
+
+	db := models.GetDB()
+	var endpoint models.Endpoint
+
+	if err := db.Where("ID = ?", Endpointid).Find(&endpoint).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "No endpoint found for the given endpointid"})
+			return
+		}
+		log.Printf("Error fetching endpoint for endpointid %s: %v", Endpointid, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
+		return
+	}
+	endpoint.Payload = decodePayload(endpoint.Payload)
+	c.JSON(http.StatusOK, endpoint)
 }
