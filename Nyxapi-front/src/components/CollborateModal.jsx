@@ -14,7 +14,7 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
     useEffect(() => {
         const fetchSharedEmails = async () => {
             try {
-                const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/${projectId}`);
+                const response = await axios.get(`http://localhost:8080/share/${projectId}`);
                 setEmails(response.data.emails);
             } catch (error) {
                 console.error('Error fetching shared emails:', error);
@@ -31,7 +31,7 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
             try {
                
                 const response = await axios.post(
-                    'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/',
+                    'http://localhost:8080/share/',
                     {
                         projectid: projectId,
                         email,
@@ -64,7 +64,7 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
 
         if (confirmRemove) {
             try {
-                const response = await axios.delete('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/remove', {
+                const response = await axios.delete('http://localhost:8080/share/remove', {
                     params: {
                         projectid: projectId,
                         user_email: emailToRemove,
@@ -87,7 +87,7 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
     // Function to fetch email suggestions
     const fetchEmailSuggestions = async (initials) => {
         try {
-            const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/userslist/${initials}`);
+            const response = await axios.get(`http://localhost:8080/share/userslist/${initials}`);
             setSuggestions(response.data.users);
         } catch (error) {
             console.error('Error fetching email suggestions:', error);

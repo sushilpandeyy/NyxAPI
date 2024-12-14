@@ -42,7 +42,7 @@ const CreateProject = ({ toggleModal }) => {
         };
 
         try {
-            const response = await fetch("https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/", {
+            const response = await fetch("http://localhost:8080/project/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

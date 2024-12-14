@@ -20,7 +20,7 @@ const CreateEndpoint = () => {
     };
 
     try {
-      await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/', payload);
+      await axios.post('http://localhost:8080/endpoints/', payload);
       setEndpoint(''); // Clear the input
       window.location.reload(); // Reload the page on success
     } catch (error) {

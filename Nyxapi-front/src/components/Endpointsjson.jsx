@@ -76,7 +76,7 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
       const payload = { payload: encodeObject(parsedData) };
 
       await axios.put(
-        `https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/endpoints/update_payload/${parseInt(endpointId)}`,
+        `http://localhost:8080/endpoints/update_payload/${parseInt(endpointId)}`,
         payload
       );
       setSaveStatus('Data saved successfully!');

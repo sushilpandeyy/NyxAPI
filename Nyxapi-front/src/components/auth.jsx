@@ -16,20 +16,20 @@ const Auth = () => {
 
     const requestBody = isLogin ? { email, password } : { name, email, password };
     const endpoint = isLogin
-      ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
-      : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
+      ? 'http://localhost:8080/users/login'
+      : 'http://localhost:8080/users/register';
 
     try {
       const response = await axios.post(endpoint, requestBody, {
         headers: { 'Content-Type': 'application/json' },
       });
 
-      if (response.data && response.data.user) {
+      if (response.data) {
         // Store session data for both login and signup
-        const user = response.data.user.user;
+        const user = response.data.user;
+        console.log(response)
         sessionStorage.setItem('user', JSON.stringify(user));
 
-        // Redirect to dashboard
         navigate('/dashboard');
       } else {
         setError('Authentication failed. Please check your credentials and try again.');

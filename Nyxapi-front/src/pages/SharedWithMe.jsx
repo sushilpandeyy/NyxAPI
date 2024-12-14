@@ -27,7 +27,7 @@ const SharedWithMe = () => {
 
   const fetchProjects = async (userId) => {
     try {
-      const response = await axios.get(`https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/share/?userid=${userId}`);
+      const response = await axios.get(`http://localhost:8080/share/?userid=${userId}`);
       setProjects(response.data?.data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -52,7 +52,7 @@ const SharedWithMe = () => {
 
     try {
       const token = sessionStorage.getItem('token');
-      await axios.post('https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/project/', formData, {
+      await axios.post('http://localhost:8080/project/', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toggleModal();

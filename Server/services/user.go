@@ -108,7 +108,7 @@ func GetUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"email":   user.Email,
-		"user_id": user.ID,
+		"email": user.Email,
+		"id":    user.ID,
 	})
 }
