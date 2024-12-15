@@ -28,7 +28,8 @@ const decodeObject = (codedString) => {
   }
 };
 
-const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) => {
+const EndpointJsonEditor = ({ Projectid, endpointId, Endpoint, initialPayload = '{}' }) => {
+  console.log(endpointId)
   const [jsonData, setJsonData] = useState(() => {
     const decoded = decodeObject(initialPayload);
     return JSON.stringify(decoded, null, 2) || '{}';
@@ -73,10 +74,10 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
   const handleSave = async () => {
     try {
       const parsedData = JSON.parse(jsonData);
-      const payload = { payload: encodeObject(parsedData) };
+      const payload = { payload: parsedData, Endpoint: Endpoint };
 
       await axios.put(
-        `http://localhost:8080/endpoints/update_payload/${parseInt(endpointId)}`,
+        `http://localhost:8080/endpoint/updatepayload/${endpointId}`,
         payload
       );
       setSaveStatus('Data saved successfully!');
