@@ -66,13 +66,18 @@ const EndpointList = () => {
                 onClick={() => toggleEndpointEditor(endpoint.endpointid)}
                 className="flex items-center px-4 py-2 bg-indigo-600 rounded focus:outline-none"
               >
-                {expandedEndpoint === endpoint.endpointid ? <FaChevronUp /> : <FaChevronDown />}
+                {expandedEndpoint === endpoint.id ? <FaChevronUp /> : <FaChevronDown />}
               </button>
             </div>
             {expandedEndpoint === endpoint.endpointid && (
               <div className="p-4">
-                <EndpointJsonEditor Projectid={Projectid} Endpoint={endpoint.Endpoint} endpointId={parseInt(endpoint.endpointid)} initialPayload={endpoint.Payload} />
-              </div>
+                <EndpointJsonEditor 
+  Projectid={Projectid} 
+  Endpoint={endpoint.Endpoint} 
+  endpointId={parseInt(endpoint.ID)} 
+  initialPayload={endpoint.Payload} 
+/>
+                              </div>
             )}
           </div>
         ))}

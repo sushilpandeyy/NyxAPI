@@ -7,11 +7,10 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
    
     const [email, setEmail] = useState('');
     const [emails, setEmails] = useState([]);
-    const [suggestions, setSuggestions] = useState([]); // State to hold email suggestions
+    const [suggestions, setSuggestions] = useState([]);  
     const [error, setError] = useState('');
 
-    // Fetch shared emails on component mount
-    useEffect(() => {
+     useEffect(() => {
         const fetchSharedEmails = async () => {
             try {
                 const response = await axios.get(`http://localhost:8080/share/${projectId}`);
@@ -38,16 +37,16 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
                     },
                     {
                         headers: {
-                            'Content-Type': 'application/json', // Ensure content-type is specified
+                            'Content-Type': 'application/json',  
                         },
                     }
                 );
     
                 if (response.status === 200 && response.data.msg === "User added to Shared array") {
                     setEmails((prev) => [...prev, email]);
-                    setEmail(''); // Clear input field
-                    setSuggestions([]); // Clear suggestions
-                    setError(''); // Clear error
+                    setEmail('');  
+                    setSuggestions([]);  
+                    setError('');  
                 } else {
                     setError('Failed to add email.');
                 }

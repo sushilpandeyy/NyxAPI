@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-// Utility Functions: Encode and Decode JSON
-const encodeObject = (obj) => {
+ const encodeObject = (obj) => {
   try {
     return JSON.stringify(obj)
       .replace(/"/g, '[[DQ]]')
@@ -30,6 +29,7 @@ const decodeObject = (codedString) => {
 
 const EndpointJsonEditor = ({ Projectid, endpointId, Endpoint, initialPayload = '{}' }) => {
   console.log(endpointId)
+  
   const [jsonData, setJsonData] = useState(() => {
     const decoded = decodeObject(initialPayload);
     return JSON.stringify(decoded, null, 2) || '{}';
@@ -64,7 +64,7 @@ const EndpointJsonEditor = ({ Projectid, endpointId, Endpoint, initialPayload = 
     try {
       const parsedData = JSON.parse(newJsonData);
       if (websocketRef.current.readyState === WebSocket.OPEN) {
-        websocketRef.current.send(encodeObject(parsedData));
+        websocketRef.current.send(parsedData);
       }
     } catch {
       setError("Invalid JSON format. Please check your input.");
@@ -74,14 +74,18 @@ const EndpointJsonEditor = ({ Projectid, endpointId, Endpoint, initialPayload = 
   const handleSave = async () => {
     try {
       const parsedData = JSON.parse(jsonData);
-      const payload = { payload: parsedData, Endpoint: Endpoint };
-
+      const payload = { 
+        payload: JSON.stringify(parsedData), 
+        Endpoint: Endpoint 
+      };
+  
       await axios.put(
         `http://localhost:8080/endpoint/updatepayload/${endpointId}`,
         payload
       );
       setSaveStatus('Data saved successfully!');
     } catch (err) {
+      console.error('Save error:', err);
       setError('Failed to save data. Please check your input and try again.');
       setSaveStatus('');
     }
