@@ -282,3 +282,18 @@ func UpdateWorking(c *gin.Context) {
 		},
 	})
 }
+
+func Deleteendpoint(c *gin.Context) {
+	Endpointid := c.Param("EndpointID")
+
+	db := models.GetDB()
+	var endpoint models.Endpoint
+
+	if err := db.Where("ID = ?", Endpointid).Delete(&endpoint).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "No endpoint found for the given endpointid"})
+			return
+		}
+	}
+	c.JSON(http.StatusOK, endpoint)
+}

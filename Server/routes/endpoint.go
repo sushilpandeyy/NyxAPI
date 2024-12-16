@@ -14,4 +14,5 @@ func Endpointroutes(router *gin.Engine) {
 	router.PUT("/endpoint/updateapitype/:endpointID", services.UpdateAPIType)
 	router.PUT("/endpoint/updateschema/:endpointID", services.UpdateEndpointScheme)
 	router.PUT("/endpoint/working/:endpointID", services.UpdateWorking)
+	router.DELETE("/endpoint/delete/:EndpointID", services.Deleteendpoint)
 }
