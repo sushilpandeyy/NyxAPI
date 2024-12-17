@@ -37,14 +37,14 @@ type User struct {
 
 type Project struct {
 	gorm.Model
-	ID          uint       `gorm:"primaryKey;autoIncrement"`
-	Subdomain   int        `gorm:"uniqueIndex;not null"`
-	Title       string     `gorm:"type:varchar(255);not null"`
-	UserID      uint       `gorm:"not null"`
-	Description string     `gorm:"type:text"`
-	Img         string     `gorm:"type:varchar(255)"`
-	Shared      []uint     `gorm:"type:integer[]"`
-	Endpoints   []Endpoint `gorm:"foreignKey:ProjectID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	ID          uint           `gorm:"primaryKey;autoIncrement"`
+	Subdomain   int            `gorm:"uniqueIndex;not null"`
+	Title       string         `gorm:"type:varchar(255);not null"`
+	UserID      uint           `gorm:"not null"`
+	Description string         `gorm:"type:text"`
+	Img         string         `gorm:"type:varchar(255)"`
+	Shared      pq.StringArray `gorm:"type:text[]"`
+	Endpoints   []Endpoint     `gorm:"foreignKey:ProjectID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 type Endpoint struct {

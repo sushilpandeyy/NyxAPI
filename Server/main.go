@@ -77,6 +77,7 @@ func NewApp() (*App, error) {
 	routes.UserRoute(router)
 	routes.ProjectRoute(router)
 	routes.Endpointroutes(router)
+	routes.Shareendpoints(router)
 
 	return &App{
 		DB:     db,
