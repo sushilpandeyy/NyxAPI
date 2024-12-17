@@ -119,3 +119,92 @@ func Addemail(c *gin.Context) {
 		},
 	})
 }
+
+func RemoveEmail(c *gin.Context) {
+	emailToRemove := c.Param("email")
+	projectid := c.Param("projid")
+
+	log.Printf("Project ID: %s", projectid)
+	log.Printf("Email to Remove: %s", emailToRemove)
+
+	db := models.GetDB()
+
+	var project models.Project
+
+	projID, err := strconv.ParseUint(projectid, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		return
+	}
+
+	if err := db.Where("id = ?", projID).First(&project).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project", "cause": err.Error()})
+		return
+	}
+
+	updatedShared := []string{}
+	emailFound := false
+
+	for _, sharedEmail := range project.Shared {
+		if sharedEmail != emailToRemove {
+			updatedShared = append(updatedShared, sharedEmail)
+		} else {
+			emailFound = true
+		}
+	}
+
+	if !emailFound {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email not found in shared list"})
+		return
+	}
+
+	if err := db.Model(&project).Update("Shared", pq.Array(updatedShared)).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update shared emails", "cause": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Removed email from project",
+		"project": gin.H{
+			"id":     project.ID,
+			"title":  project.Title,
+			"shared": updatedShared,
+		},
+	})
+}
+
+func Getshared(c *gin.Context) {
+	projectid := c.Param("projid")
+
+	db := models.GetDB()
+
+	var project models.Project
+
+	projID, err := strconv.ParseUint(projectid, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		return
+	}
+
+	if err := db.Where("id = ?", projID).First(&project).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Project not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch project", "cause": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Get All Email ID's",
+		"project": gin.H{
+			"id":     project.ID,
+			"title":  project.Title,
+			"shared": project.Shared,
+		},
+	})
+}

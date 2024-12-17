@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
+const CollaborateModal = ({ onClose = () => {}, proj }) => {
     const projectId=proj
    
     const [email, setEmail] = useState('');
@@ -10,31 +10,27 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
     const [suggestions, setSuggestions] = useState([]);  
     const [error, setError] = useState('');
 
-     useEffect(() => {
+    useEffect(() => {
         const fetchSharedEmails = async () => {
             try {
-                const response = await axios.get(`http://localhost:8080/share/${projectId}`);
-                setEmails(response.data.emails);
+                const response = await axios.get(`http://localhost:8080/share/all/${projectId}`);
+                setEmails(response.data.project.shared || []); // Ensure a fallback to an empty array
             } catch (error) {
                 console.error('Error fetching shared emails:', error);
                 setError('Failed to fetch shared emails.');
+                setEmails([]); // Ensure the state is an empty array on error
             }
         };
         fetchSharedEmails();
     }, [projectId]);
-
-    // Function to handle adding email
+    
     const handleAddEmail = async (e) => {
         e.preventDefault();
         if (email) {
             try {
-               
-                const response = await axios.post(
-                    'http://localhost:8080/share/',
-                    {
-                        projectid: projectId,
-                        email,
-                    },
+               const uri = 'http://localhost:8080/share/'+projectId+'/'+email
+                const response = await axios.put(
+                    uri,
                     {
                         headers: {
                             'Content-Type': 'application/json',  
@@ -42,7 +38,7 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
                     }
                 );
     
-                if (response.status === 200 && response.data.msg === "User added to Shared array") {
+                if (response.status === 200) {
                     setEmails((prev) => [...prev, email]);
                     setEmail('');  
                     setSuggestions([]);  
@@ -63,13 +59,8 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
 
         if (confirmRemove) {
             try {
-                const response = await axios.delete('http://localhost:8080/share/remove', {
-                    params: {
-                        projectid: projectId,
-                        user_email: emailToRemove,
-                    },
-                });
-
+                const uri = 'http://localhost:8080/share/'+projectId+'/'+emailToRemove
+                const response = await axios.delete(uri); 
                 if (response.status === 200) {
                     setEmails((prev) => prev.filter((email) => email !== emailToRemove));
                     setError('');
@@ -82,12 +73,10 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
             }
         }
     };
-
-    // Function to fetch email suggestions
     const fetchEmailSuggestions = async (initials) => {
         try {
-            const response = await axios.get(`http://localhost:8080/share/userslist/${initials}`);
-            setSuggestions(response.data.users);
+            const response = await axios.get(`http://localhost:8080/share/${initials}`);
+            setSuggestions(response.data.recommendations);
         } catch (error) {
             console.error('Error fetching email suggestions:', error);
             setSuggestions([]); // Clear suggestions on error
@@ -108,7 +97,7 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
 
     // Function to handle suggestion click
     const handleSuggestionClick = (suggestedEmail) => {
-        setEmail(suggestedEmail);
+        setEmail(suggestedEmail.email);
         setSuggestions([]);
     };
 
@@ -131,11 +120,11 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
                             <ul className="absolute bg-gray-700 rounded w-full mt-1 max-h-48 overflow-y-auto z-10">
                                 {suggestions.map((suggestedEmail) => (
                                     <li
-                                        key={suggestedEmail}
+                                        key={suggestedEmail.email}
                                         className="px-3 py-2 text-white hover:bg-gray-600 cursor-pointer"
                                         onClick={() => handleSuggestionClick(suggestedEmail)}
                                     >
-                                        {suggestedEmail}
+                                        {suggestedEmail.name} ({suggestedEmail.email})
                                     </li>
                                 ))}
                             </ul>
@@ -145,13 +134,13 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
                     {error && <p className="text-red-500">{error}</p>} {/* Display error message */}
 
                     <div className="flex justify-end space-x-4">
-                        <button
-                            type="button"
-                            onClick={toggleModal}
-                            className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
-                        >
-                            Cancel
-                        </button>
+                    <button
+    type="button"
+    onClick={onClose}  
+    className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
+>
+    Close
+</button>
                         <button
                             type="submit"
                             className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
@@ -165,17 +154,22 @@ const CollaborateModal = ({ toggleModal = () => {}, proj }) => {
                 <div className="mt-4">
                     <h4 className="text-lg font-semibold text-white mb-2">Shared Emails:</h4>
                     <ul className="list-disc list-inside">
-                        {emails.map((emailItem) => (
-                            <li key={emailItem} className="flex justify-between items-center text-gray-300">
-                                {emailItem}
-                                <button
-                                    onClick={() => handleRemoveEmail(emailItem)}
-                                    className="ml-2 text-red-500 hover:text-red-700"
-                                >
-                                    ✖️
-                                </button>
-                            </li>
-                        ))}
+                    {emails.length > 0 ? (
+    emails.map((emailItem) => (
+        <li key={emailItem} className="flex justify-between items-center text-gray-300">
+            {emailItem}
+            <button
+                onClick={() => handleRemoveEmail(emailItem)}
+                className="ml-2 text-red-500 hover:text-red-700"
+            >
+                ✖️
+            </button>
+        </li>
+    ))
+) : (
+    <li className="text-gray-400">Add Members</li>
+)}
+
                     </ul>
                 </div>
             </div>

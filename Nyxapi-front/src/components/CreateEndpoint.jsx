@@ -65,7 +65,7 @@ const CreateEndpoint = () => {
         </button>
       </div>
       
-      {isModalOpen && <CollborateModal toggleModal={toggleModal} proj={Projectid} />}
+      {isModalOpen && <CollborateModal onClose={toggleModal} proj={Projectid} />}
     </div>
   );
 };

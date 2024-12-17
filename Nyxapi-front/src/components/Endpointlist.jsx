@@ -97,8 +97,8 @@ const EndpointList = () => {
           </div>
         </div>
       )}
-
-      {isModalOpen && <CollborateModal onClose={toggleModal} />}
+      
+      {isModalOpen && <CollborateModal onClose={toggleModal} proj={projectIdInt} />}
     </div>
   );
 };
