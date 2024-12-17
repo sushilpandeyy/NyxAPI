@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,11 +26,30 @@ var (
 	once sync.Once
 )
 
+func loadConfig() (DatabaseConfig, error) {
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		return DatabaseConfig{}, fmt.Errorf("error loading .env file: %w", err)
+	}
+
+	return DatabaseConfig{
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		Host:     os.Getenv("DB_HOST"),
+		Name:     os.Getenv("DB_NAME"),
+		SSLMode:  os.Getenv("DB_SSLMODE"),
+	}, nil
+}
+
 func ConnectToDB() (*gorm.DB, error) {
 	var connectionError error
 
 	once.Do(func() {
-		config := DatabaseConfig{}
+		config, err := loadConfig()
+		if err != nil {
+			connectionError = err
+			return
+		}
 
 		if err := validateConfig(config); err != nil {
 			connectionError = err
