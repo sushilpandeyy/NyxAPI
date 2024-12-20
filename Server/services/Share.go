@@ -208,3 +208,24 @@ func Getshared(c *gin.Context) {
 		},
 	})
 }
+
+func GetSharedProj(c *gin.Context) {
+	usermail := c.Param("usermail")
+
+	db := models.GetDB()
+	var projects []models.Project
+
+	if err := db.Where("shared @> ?", pq.Array([]string{usermail})).Find(&projects).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "No projects found for the given email"})
+			return
+		}
+		log.Printf("Error fetching projects for email %s: %v", usermail, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"projects": projects,
+	})
+}

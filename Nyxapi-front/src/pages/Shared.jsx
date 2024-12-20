@@ -18,22 +18,24 @@ const Shared = () => {
       if (userData) {
         setUserId(userData.user_id);
         setUserName(userData.name);
-        fetchProjects(userData.user_id);
+        fetchProjects(userData.email);
       } else {
         // Redirect to login if user data is not found
         window.location.href = '/login';
       }
     }, []);
   
-    const fetchProjects = async (userId) => {
+    const fetchProjects = async (email) => {
       try {
-        const response = await axios.get(`http://localhost:8080/share/?userid=${userId}`);
-        setProjects(response.data?.data || []);
+        const response = await axios.get(`http://localhost:8080/share/get/${email}`);
+        const projectData = response.data.projects || []; // Extract projects array
+        setProjects(projectData);
       } catch (error) {
         console.error('Error fetching projects:', error);
         setError('Failed to fetch projects.');
       }
     };
+    
   
     const toggleModal = () => {
       setIsModalOpen((prev) => !prev);
@@ -94,33 +96,32 @@ const Shared = () => {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold">Shared with me</h2>
           </div>
-  
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {projects.length ? (
-              projects.map((project) => (
-                <div
-                  key={project.id}
-                  className="relative p-6 bg-gray-800 rounded-lg transition-transform transform hover:scale-105 cursor-pointer"
-                  onClick={() => (window.location.href = `/dashboard/endpoints/${project.Projectid}`)}
-                >
-                  <div className="flex items-center">
-                    <img
-                      src={project.Img || defaultImage}
-                      alt="Project Logo"
-                      className="w-10 h-10 mr-3"
-                    />
-                    <h3 className="text-lg font-semibold">{project.Title}</h3>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-400">{project.Description}</p>
-                  <p className="mt-1 text-sm text-gray-400">Created by: {project.user.name}</p>
-                  <p className="mt-1 text-sm text-gray-400">
-                    Created on: {new Date(project.created).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-400">No shared projects available.</p>
-            )}
+          {projects.length ? (
+  projects.map((project) => (
+    <div
+      key={project.ID}
+      className="relative p-6 bg-gray-800 rounded-lg transition-transform transform hover:scale-105 cursor-pointer"
+      onClick={() => (window.location.href = `/dashboard/endpoints/${project.ID}/${project.Subdomain}`)}
+    >
+      {console.log(project)}
+      <div className="flex items-center">
+        <img
+          src={project.Img || defaultImage}
+          alt="Project Logo"
+          className="w-10 h-10 mr-3"
+        />
+        <h3 className="text-lg font-semibold">{project.Title}</h3>
+      </div>
+      <p className="mt-2 text-sm text-gray-400">{project.Description}</p>
+      <p className="mt-1 text-sm text-gray-400">
+        Created on: {new Date(project.CreatedAt).toLocaleDateString()}
+      </p>
+    </div>
+  ))
+) : (
+  <p className="text-gray-400">No shared projects available.</p>
+)}
           </div>
   
           <div className="flex items-center justify-between mt-6">
