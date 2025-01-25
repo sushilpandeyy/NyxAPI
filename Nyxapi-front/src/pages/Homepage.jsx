@@ -143,15 +143,11 @@ const HomePage = () => {
             </div>
             <div className="bg-gray-800 rounded-xl p-6 font-mono text-sm">
               <pre className="text-gray-300">
-{`const api = new NyxAPI();
-
-api.createEndpoint('/users', {
-  method: 'GET',
-  response: [
-    { id: 1, name: 'John' },
-    { id: 2, name: 'Jane' }
-  ]
-});`}
+{`{
+"name": "John Doe",
+"email": "john.doe@gmail.com",
+"age": 32
+};`}
               </pre>
             </div>
           </div>
@@ -161,26 +157,7 @@ api.createEndpoint('/users', {
       {/* Footer */}
       <footer className="bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-bold text-white mb-4">NyxAPI</h3>
-              <p className="text-gray-400">
-                Accelerating frontend development with powerful mock APIs.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Product</h4>
-              <FooterLinks links={['Features', 'Pricing', 'Documentation', 'API Reference']} />
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Company</h4>
-              <FooterLinks links={['About', 'Blog', 'Careers', 'Contact']} />
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-4">Legal</h4>
-              <FooterLinks links={['Privacy', 'Terms', 'Security', 'Status']} />
-            </div>
-          </div>
+           
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
             © 2025 NyxAPI. All rights reserved.
           </div>
