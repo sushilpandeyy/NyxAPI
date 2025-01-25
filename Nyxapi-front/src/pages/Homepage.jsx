@@ -70,11 +70,7 @@ const HomePage = () => {
           </div>
           
           <div className="mt-12 flex justify-center">
-            <div className="bg-gray-800/50 rounded-xl p-4 inline-flex gap-8">
-              <Stat number="10k+" label="Developers" />
-              <Stat number="50k+" label="APIs Created" />
-              <Stat number="99.9%" label="Uptime" />
-            </div>
+           
           </div>
         </div>
       </div>
