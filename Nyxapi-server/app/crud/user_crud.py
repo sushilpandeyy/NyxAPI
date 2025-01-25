@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from app.models.user import User, Usage
+from typing import Dict, Optional
 
 logging.basicConfig(
     level=logging.INFO,
