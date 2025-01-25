@@ -2,42 +2,42 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
-  const navigate = useNavigate();
-  const user = JSON.parse(sessionStorage.getItem('user'));
+ const navigate = useNavigate();
+ const user = JSON.parse(sessionStorage.getItem('user'));
 
-  const handleLogout = () => {
-    sessionStorage.removeItem('user');
-    navigate('/login');
-  };
+ return (
+   <div className="container mx-auto px-4 py-8">
+     <div className="bg-gray-900 rounded-xl shadow-2xl p-8 border border-gray-800 max-w-xl mx-auto">
+       <h1 className="text-3xl font-bold text-white mb-8 text-center">Settings</h1>
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="w-full max-w-md p-6 bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
-        <h1 className="mb-6 text-2xl font-semibold text-center text-white">Settings</h1>
+       <div className="space-y-6">
+         <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+           <h2 className="text-xl font-semibold text-white mb-4">Profile</h2>
+           <div className="space-y-3">
+             <div className="flex justify-between">
+               <span className="text-gray-400">Name</span>
+               <span className="text-white">{user?.name || 'N/A'}</span>
+             </div>
+             <div className="flex justify-between">
+               <span className="text-gray-400">Email</span>  
+               <span className="text-white">{user?.email || 'N/A'}</span>
+             </div>
+           </div>
+         </div>
 
-        {/* Profile Details */}
-        <div className="p-4 mb-8 bg-gray-700 rounded-md shadow-md">
-          <h2 className="text-xl font-semibold text-gray-200">Profile</h2>
-          <p className="mt-2 text-gray-400">
-            <strong>Name:</strong> {user?.name || 'N/A'}
-          </p>
-          <p className="mt-2 text-gray-400">
-            <strong>Email:</strong> {user?.email || 'N/A'}
-          </p>
-        </div>
-
-        {/* Logout Container */}
-        <div className="p-4 bg-gray-700 rounded-md shadow-md">
-          <button
-            onClick={handleLogout}
-            className="w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+         <button
+           onClick={() => {
+             sessionStorage.removeItem('user');
+             navigate('/login');
+           }}
+           className="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg text-white font-medium transition-colors"
+         >
+           Logout
+         </button>
+       </div>
+     </div>
+   </div>
+ );
 };
 
 export default Settings;

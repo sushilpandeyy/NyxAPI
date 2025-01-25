@@ -3,125 +3,101 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+ const [isLogin, setIsLogin] = useState(true);
+ const [name, setName] = useState(''); 
+ const [email, setEmail] = useState('demo0@demo.com');
+ const [password, setPassword] = useState('demo');
+ const [error, setError] = useState('');
+ const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(''); // Clear previous errors
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   setError('');
 
-    const requestBody = isLogin ? { email, password } : { name, email, password };
-    const endpoint = isLogin
-      ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
-      : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
+   const requestBody = isLogin ? { email, password } : { name, email, password };
+   const endpoint = isLogin
+     ? 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/authenticate/'
+     : 'https://afmtaryv91.execute-api.ap-south-1.amazonaws.com/users/';
 
-    try {
-      const response = await axios.post(endpoint, requestBody, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+   try {
+     const response = await axios.post(endpoint, requestBody, {
+       headers: { 'Content-Type': 'application/json' },
+     });
 
-      if (response.data && response.data.user) {
-        // Store session data for both login and signup
-        const user = response.data.user.user;
-        sessionStorage.setItem('user', JSON.stringify(user));
+     if (response.data?.user) {
+       sessionStorage.setItem('user', JSON.stringify(response.data.user.user));
+       navigate('/dashboard');
+     } else {
+       setError('Authentication failed');
+     }
+   } catch (err) {
+     setError(isLogin ? 'Invalid credentials' : 'Sign up failed');
+   }
+ };
 
-        // Redirect to dashboard
-        navigate('/dashboard');
-      } else {
-        setError('Authentication failed. Please check your credentials and try again.');
-      }
-    } catch (err) {
-      console.error('Error during authentication:', err);
-      setError(isLogin ? 'Login failed. Please check your credentials and try again.' : 'Sign up failed. Please try again.');
-    }
-  };
+ return (
+   <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+     <div className="w-full max-w-md p-8 space-y-6 bg-gray-900 rounded-xl shadow-2xl border border-gray-800">
+       <h1 className="text-4xl font-bold text-center text-white mb-8">NyxAPI</h1>
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      <div className="relative p-1 bg-transparent rounded-lg shadow-lg">
-        <div className="relative w-full max-w-lg p-8 mx-4 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl bg-opacity-70 backdrop-blur-md">
-          <h1 className="mb-6 text-3xl font-semibold text-center text-gray-100">Welcome to NyxAPI</h1>
+       {error && <div className="p-3 text-sm text-red-200 bg-red-900/50 rounded">{error}</div>}
 
-          {error && <p className="text-center text-red-500">{error}</p>}
+       <form onSubmit={handleSubmit} className="space-y-5">
+         {!isLogin && (
+           <div>
+             <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
+             <input
+               type="text"
+               value={name}
+               onChange={(e) => setName(e.target.value)}
+               className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+               required
+             />
+           </div>
+         )}
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <div>
-                <label className="block mb-1 text-sm font-medium text-gray-400">Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 text-gray-100 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
-            )}
+         <div>
+           <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+           <input
+             type="email"
+             value={email}
+             onChange={(e) => setEmail(e.target.value)}
+             className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+             required
+           />
+         </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-400">Email</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 text-gray-100 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
+         <div>
+           <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+           <input
+             type="password"
+             value={password}
+             onChange={(e) => setPassword(e.target.value)}
+             className="w-full px-4 py-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+             required
+           />
+         </div>
 
-            <div>
-              <label className="block mb-1 text-sm font-medium text-gray-400">Password</label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 text-gray-100 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
+         <button
+           type="submit"
+           className="w-full py-3 text-white bg-indigo-600 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+         >
+           {isLogin ? 'Sign In' : 'Create Account'}
+         </button>
+       </form>
 
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-white bg-indigo-600 rounded-md shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {isLogin ? 'Login' : 'Sign up'}
-            </button>
-          </form>
-
-          <p className="mt-4 text-center text-gray-400">
-            {isLogin ? (
-              <>
-                Don’t have an account?{' '}
-                <span
-                  onClick={() => setIsLogin(false)}
-                  className="text-indigo-400 cursor-pointer hover:underline"
-                >
-                  Sign up
-                </span>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <span
-                  onClick={() => setIsLogin(true)}
-                  className="text-indigo-400 cursor-pointer hover:underline"
-                >
-                  Login
-                </span>
-              </>
-            )}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+       <p className="text-center text-gray-400">
+         {isLogin ? 'New to NyxAPI? ' : 'Already have an account? '}
+         <button
+           onClick={() => setIsLogin(!isLogin)}
+           className="text-indigo-400 hover:text-indigo-300 font-medium"
+         >
+           {isLogin ? 'Create Account' : 'Sign In'}
+         </button>
+       </p>
+     </div>
+   </div>
+ );
 };
 
 export default Auth;

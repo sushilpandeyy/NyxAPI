@@ -1,90 +1,73 @@
 import React, { useState, useEffect } from 'react';
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'; 
-import 'react-circular-progressbar/dist/styles.css'; 
-import nyx from '../assets/nyxLogo.webp'; 
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const Usage = () => {
-  const [usageData, setUsageData] = useState(null);
-  const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState('');
-  const [loading, setLoading] = useState(true);
+ const [usageData, setUsageData] = useState({ projects: 5, endpoints: 20 });
+ const [loading, setLoading] = useState(true);
+ 
+ const maxProjects = 10;
+ const maxEndpoints = 50;
 
-  const maxProjects = 10; 
-  const maxEndpoints = 50; 
+ useEffect(() => {
+   const dummyUser = {
+     user_id: 123,
+     name: 'John Doe',
+     projects: 5,
+     endpoints: 20
+   };
+   setUsageData({
+     projects: dummyUser.projects,
+     endpoints: dummyUser.endpoints
+   });
+   setLoading(false);
+ }, []);
 
-  useEffect(() => {
-    const dummyUserData = {
-      user_id: 123,
-      name: 'John Doe',
-      projects: 5,       
-      endpoints: 20,     
-    };
+ if (loading) return <p className="text-white">Loading...</p>;
 
-    setUserId(dummyUserData.user_id);
-    setUserName(dummyUserData.name);
-    
-    setUsageData({
-      projects: dummyUserData.projects,
-      endpoints: dummyUserData.endpoints,
-    });
+ return (
+   <div className="container mx-auto px-4 py-8">
+     <div className="bg-gray-900 rounded-xl shadow-2xl p-8 border border-gray-800 max-w-xl mx-auto">
+       <h1 className="text-3xl font-bold text-white mb-8 text-center">Usage Overview</h1>
 
-    setLoading(false);
-  }, []);
+       <div className="grid grid-cols-2 gap-8 mb-8">
+         <div className="flex flex-col items-center">
+           <div className="w-32 h-32">
+             <CircularProgressbar
+               value={(usageData.projects / maxProjects) * 100}
+               text={`${usageData.projects}/${maxProjects}`}
+               styles={buildStyles({
+                 pathColor: '#6366f1',
+                 textColor: '#fff',
+                 trailColor: '#374151'
+               })}
+             />
+           </div>
+           <p className="mt-4 text-gray-300">Projects</p>
+         </div>
 
-  if (loading) {
-    return <div className="text-white">Loading usage data...</div>;
-  }
+         <div className="flex flex-col items-center">
+           <div className="w-32 h-32">
+             <CircularProgressbar
+               value={(usageData.endpoints / maxEndpoints) * 100}
+               text={`${usageData.endpoints}/${maxEndpoints}`}
+               styles={buildStyles({
+                 pathColor: '#6366f1',
+                 textColor: '#fff',
+                 trailColor: '#374151'
+               })}
+             />
+           </div>
+           <p className="mt-4 text-gray-300">Endpoints</p>
+         </div>
+       </div>
 
-  const projectPercentage = (usageData.projects / maxProjects) * 100;
-  const endpointPercentage = (usageData.endpoints / maxEndpoints) * 100;
-
-  return (
-    <div className="usage-page container mx-auto py-8" style={{ backgroundColor: '#101826', height: '100vh' }}>
-      <h1 className="text-2xl font-bold mb-4 text-white">Usage Overview</h1>
-
-      <div className="usage-info bg-gray-800 p-4 rounded-lg shadow-lg mb-6 text-white max-w-md mx-auto">
-        <h2 className="text-lg font-semibold mb-4">Hello, {userName}</h2>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col items-center">
-            <CircularProgressbar
-              value={projectPercentage}
-              text={`${usageData.projects}/${maxProjects}`}
-              styles={buildStyles({
-                pathColor: '#3182CE',
-                textColor: '#E2E8F0',
-                trailColor: '#4A5568',
-                backgroundColor: '#101826',
-              })}
-            />
-            <p className="text-sm font-semibold mt-2">Projects</p>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <CircularProgressbar
-              value={endpointPercentage}
-              text={`${usageData.endpoints}/${maxEndpoints}`}
-              styles={buildStyles({
-                pathColor: '#48BB78',
-                textColor: '#E2E8F0',
-                trailColor: '#4A5568',
-                backgroundColor: '#101826',
-              })}
-            />
-            <p className="text-sm font-semibold mt-2">Endpoints</p>
-          </div>
-
-          
-
-        </div>
-      </div>
-      <div className="flex items-center justify-center">
-  <button className="px-4 py-2 text-sm text-white font-semibold bg-pink-600 rounded hover:bg-pink-700">
-    Upgrade 🚀
-  </button>
-</div>
-    </div>
-  );
+       <button className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white font-medium transition-colors">
+         Upgrade Plan
+       </button>
+     </div>
+   </div>
+ );
 };
 
 export default Usage;

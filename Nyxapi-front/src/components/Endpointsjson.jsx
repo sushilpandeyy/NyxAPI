@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 // Utility Functions: Encode and Decode JSON
@@ -37,34 +37,14 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
   const [saveStatus, setSaveStatus] = useState('');
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [numEntries, setNumEntries] = useState(1);
-  const websocketRef = useRef(null);
-
-  useEffect(() => {
-    const websocketUrl = `ws://127.0.0.1:8000/ws/${Projectid}/${endpointId}`;
-    const ws = new WebSocket(websocketUrl);
-    websocketRef.current = ws;
-
-    ws.onopen = () => console.log('WebSocket connection established');
-    ws.onmessage = (event) => {
-      const decodedData = decodeObject(event.data);
-      if (decodedData) setJsonData(JSON.stringify(decodedData, null, 2));
-    };
-    ws.onerror = () => setError('WebSocket connection error');
-    ws.onclose = () => console.log('WebSocket connection closed');
-
-    return () => ws.close();
-  }, [Projectid, endpointId]);
 
   const handleJsonChange = (e) => {
     const newJsonData = e.target.value;
     setJsonData(newJsonData);
-    setError(''); // Clear errors on change
+    setError('');
 
     try {
-      const parsedData = JSON.parse(newJsonData);
-      if (websocketRef.current.readyState === WebSocket.OPEN) {
-        websocketRef.current.send(encodeObject(parsedData));
-      }
+      JSON.parse(newJsonData);
     } catch {
       setError("Invalid JSON format. Please check your input.");
     }
@@ -129,9 +109,6 @@ const EndpointJsonEditor = ({ Projectid, endpointId, initialPayload = '{}' }) =>
         <button onClick={handleSave} className="p-2 bg-blue-500 text-white rounded">
           Save
         </button>
-        {/*<button onClick={() => setIsPopupOpen(true)} className="p-2 bg-green-500 text-white rounded ml-2">
-          Generate Fake Data
-  </button>*/}
       </div>
 
       {isPopupOpen && (

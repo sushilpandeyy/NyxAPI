@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FaRegSave } from "react-icons/fa";
+import { FaRegSave, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { CiEdit } from "react-icons/ci";
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const SavedEndpoints = () => {
   const [endpoints, setEndpoints] = useState([]);
-  const [activeDropdown, setActiveDropdown] = useState(null); // State to track which dropdown is open
-  const [isEditing, setIsEditing] = useState(null); // Track which JSON field is being edited
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [isEditing, setIsEditing] = useState(null);
 
-  // Fetch saved endpoints from local storage or backend
   useEffect(() => {
     const savedEndpoints = JSON.parse(localStorage.getItem('endpoints')) || [
       { 
@@ -17,10 +15,10 @@ const SavedEndpoints = () => {
         url: '/api/auth', 
         method: 'POST', 
         description: 'Handles user login and authentication.',
-        sampleData: `{
-  "username": "john_doe",
-  "password": "your_password"
-}` 
+        sampleData: JSON.stringify({
+          username: "john_doe",
+          password: "your_password"
+        }, null, 2)
       },
       { 
         id: 2, 
@@ -28,9 +26,9 @@ const SavedEndpoints = () => {
         url: '/api/user', 
         method: 'GET', 
         description: 'Fetches user profile data.',
-        sampleData: `{
-  "userId": "12345"
-}` 
+        sampleData: JSON.stringify({
+          userId: "12345"
+        }, null, 2)
       },
       { 
         id: 3, 
@@ -38,105 +36,115 @@ const SavedEndpoints = () => {
         url: '/api/user/update', 
         method: 'PUT', 
         description: 'Updates user information.',
-        sampleData: `{
-  "userId": "12345",
-  "email": "new_email@example.com",
-  "name": "John Doe"
-}` 
+        sampleData: JSON.stringify({
+          userId: "12345",
+          email: "new_email@example.com",
+          name: "John Doe"
+        }, null, 2)
       },
     ];
     setEndpoints(savedEndpoints);
   }, []);
 
-  // Toggle the dropdown for a specific endpoint
   const toggleDropdown = (id) => {
-    setActiveDropdown((prevActive) => (prevActive === id ? null : id)); // Toggle the active dropdown
+    setActiveDropdown((prevActive) => (prevActive === id ? null : id));
   };
 
-  // Handle click on Edit button for editing sample JSON data
   const handleEditToggle = (id) => {
-    setIsEditing((prev) => (prev === id ? null : id)); // Toggle edit mode
+    setIsEditing((prev) => (prev === id ? null : id));
   };
 
-  // Handle changes in the JSON input field
   const handleJsonChange = (id, newJson) => {
-    const updatedEndpoints = endpoints.map(endpoint => 
-      endpoint.id === id ? { ...endpoint, sampleData: newJson } : endpoint
-    );
-    setEndpoints(updatedEndpoints);
+    try {
+      // Validate JSON before updating
+      JSON.parse(newJson);
+      const updatedEndpoints = endpoints.map(endpoint => 
+        endpoint.id === id ? { ...endpoint, sampleData: newJson } : endpoint
+      );
+      setEndpoints(updatedEndpoints);
+    } catch (error) {
+      // Optional: Add error handling for invalid JSON
+      console.error('Invalid JSON input');
+    }
+  };
+
+  const handleSaveEndpoint = (id) => {
+    const endpointToSave = endpoints.find(ep => ep.id === id);
+    // Implement save logic (e.g., to backend or local storage)
+    console.log('Saving endpoint:', endpointToSave);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
-      <div className="relative p-1 bg-transparent rounded-lg shadow-lg">
-        <div className="absolute inset-0 "></div>
-        <div className="relative grid w-full max-w-5xl p-10 mx-4 bg-gray-800 border border-transparent rounded-lg bg-opacity-60 backdrop-blur-lg">
-          <h1 className="mb-8 text-3xl font-semibold text-center text-white">
-            Saved API Endpoints
-          </h1>
+    <div className="min-h-screen bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-center text-white mb-8">
+          Saved API Endpoints
+        </h1>
 
-          <div className="w-full max-w-4xl space-y-4">
-            {endpoints.length > 0 ? (
-              endpoints.map((endpoint) => (
-                <div
-                  key={endpoint.id}
-                  className="p-4 bg-gray-700 rounded-md shadow-md bg-opacity-60"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => toggleDropdown(endpoint.id)}
-                        className="px-2 py-1 text-gray-400 hover:text-white"
-                      >
-                        {activeDropdown === endpoint.id ? <FaChevronUp /> : <FaChevronDown />}
-                      </button>
-                      
-                      <button className="flex items-center p-2 text-white transition duration-300 bg-pink-600 rounded-md hover:bg-pink-700">
-                        <FaRegSave className="text-lg" />
-                        <span className="sr-only">Save</span> {/* Screen reader only text */}
-                      </button>
+        <div className="space-y-4">
+          {endpoints.length > 0 ? (
+            endpoints.map((endpoint) => (
+              <div 
+                key={endpoint.id} 
+                className="bg-gray-800 rounded-lg shadow-md overflow-hidden"
+              >
+                <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => toggleDropdown(endpoint.id)}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      {activeDropdown === endpoint.id ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                    
+                    <button 
+                      onClick={() => handleSaveEndpoint(endpoint.id)}
+                      className="text-white bg-indigo-600 p-2 rounded-md hover:bg-indigo-700"
+                    >
+                      <FaRegSave />
+                    </button>
 
-                      <div>
-                        <h2 className="text-lg font-semibold text-white">
-                          {endpoint.name}
-                        </h2>
-                        <p className="text-sm text-gray-300">URL: {endpoint.url}</p>
-                        <p className="text-sm text-gray-400">Method: {endpoint.method}</p>
-                      </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-white">
+                        {endpoint.name}
+                      </h2>
+                      <p className="text-sm text-gray-300">
+                        URL: {endpoint.url} | Method: {endpoint.method}
+                      </p>
                     </div>
                   </div>
+                </div>
 
-                  {activeDropdown === endpoint.id && (
-                    <div className="p-4 mt-4 text-gray-300 bg-gray-600 rounded-lg">
-                      <p>{endpoint.description}</p>
+                {activeDropdown === endpoint.id && (
+                  <div className="p-4 bg-gray-700">
+                    <p className="text-gray-300 mb-4">{endpoint.description}</p>
 
-                      <div className="mt-4">
-                        <h3 className="mb-2 font-semibold text-white">Sample JSON Input:</h3>
-                        
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-semibold text-white">Sample JSON Input:</h3>
                         <button
                           onClick={() => handleEditToggle(endpoint.id)}
-                          className="p-1 mb-2 text-white transition duration-300 bg-pink-600 rounded-md hover:bg-pink-700"
+                          className="text-white bg-indigo-600 p-2 rounded-md hover:bg-indigo-700"
                         >
-                          <CiEdit className="text-lg" />
-                          <span className="sr-only">{isEditing === endpoint.id ? 'Stop Editing' : 'Edit'}</span>
+                          <CiEdit />
                         </button>
-                        
-                        <textarea
-                          className="w-full p-3 text-gray-200 transition duration-300 bg-black border-2 border-pink-400 rounded-lg" // Changed to bg-black
-                          rows="6"
-                          value={endpoint.sampleData}
-                          onChange={(e) => handleJsonChange(endpoint.id, e.target.value)}
-                          readOnly={isEditing !== endpoint.id} // Only editable when isEditing is true
-                        />
                       </div>
+                      
+                      <textarea
+                        className="w-full p-3 bg-gray-800 text-white rounded-lg font-mono"
+                        rows="6"
+                        value={endpoint.sampleData}
+                        onChange={(e) => handleJsonChange(endpoint.id, e.target.value)}
+                        readOnly={isEditing !== endpoint.id}
+                      />
                     </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-400">No saved endpoints.</p>
-            )}
-          </div>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-400">No saved endpoints.</p>
+          )}
         </div>
       </div>
     </div>
