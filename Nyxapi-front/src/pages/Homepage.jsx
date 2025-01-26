@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Rocket, Clock, Users, Code, Zap, Database, Menu, X } from 'lucide-react';
+import { Rocket, Clock, Users, Code, Zap, Database, Menu, X, Link } from 'lucide-react';
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800"> 
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Navbar */}
       <nav className="fixed w-full bg-gray-900/95 backdrop-blur z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center py-4">
@@ -15,13 +16,12 @@ const HomePage = () => {
             
             <div className="hidden md:flex items-center space-x-8">
               <NavLink href="#features">Features</NavLink>
-              <NavLink href="#docs">Docs</NavLink>
-              <NavLink href="#pricing">Pricing</NavLink>
-              <NavLink href="/login">
+              <NavLink href="#features">Docs</NavLink>
+              <a href="/login">
               <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
                 Sign In
               </button>
-              </NavLink>
+              </a>
             </div>
 
             <button 
@@ -38,11 +38,12 @@ const HomePage = () => {
           <div className="md:hidden bg-gray-900 py-4">
             <div className="flex flex-col space-y-4 px-4">
               <NavLink href="#features">Features</NavLink>
-              <NavLink href="#docs">Docs</NavLink>
-              <NavLink href="#pricing">Pricing</NavLink>
+              <NavLink href="/login">Docs</NavLink>
+              <Link href="/login"> 
               <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
                 Sign In
               </button>
+              </Link>
             </div>
           </div>
         )}
@@ -61,16 +62,20 @@ const HomePage = () => {
             Generate, deploy, and manage mock APIs in minutes. Perfect for hackathons, prototypes, and rapid development.
           </p>
           <div className="flex justify-center gap-4">
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-              Start Building
-            </button>
-            <button className="border border-gray-400 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition">
-              View Demo
-            </button>
+            <a href="/login">
+              <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                Start Building
+              </button>
+            </a>
+            <a href="/login">
+              <button className="border border-gray-400 text-gray-300 px-8 py-3 rounded-lg font-semibold hover:bg-gray-800 transition">
+                View Demo
+              </button>
+            </a>
           </div>
           
           <div className="mt-12 flex justify-center">
-           
+             
           </div>
         </div>
       </div>
@@ -133,17 +138,20 @@ const HomePage = () => {
               <p className="text-gray-400 mb-6">
                 No complex setup required. Just define your endpoint and response structure.
               </p>
+              <a href="/login">
               <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                View Documentation
+                Start Building
               </button>
+              </a>
             </div>
             <div className="bg-gray-800 rounded-xl p-6 font-mono text-sm">
               <pre className="text-gray-300">
-{`{
-"name": "John Doe",
-"email": "john.doe@gmail.com",
-"age": 32
-};`}
+{`
+  [
+    { id: 1, name: 'John' },
+    { id: 2, name: 'Jane' }
+  ]
+`}
               </pre>
             </div>
           </div>
@@ -153,7 +161,23 @@ const HomePage = () => {
       {/* Footer */}
       <footer className="bg-gray-900 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-4">NyxAPI</h3>
+              <p className="text-gray-400">
+                Accelerating frontend development with powerful mock APIs.
+              </p>
+            </div>
+            <div>
+               
+            </div>
+            <div>
+               
+            </div>
+            <div>
+              
+            </div>
+          </div>
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
             © 2025 NyxAPI. All rights reserved.
           </div>
