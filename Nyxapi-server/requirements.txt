@@ -3,9 +3,11 @@ uvicorn
 sqlalchemy
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt>=4.0.0
 python-multipart
 python-dotenv
 sqlalchemy[asyncio]
-pymysql
+asyncpg
 websockets
 gunicorn
+aiofiles

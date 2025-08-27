@@ -13,7 +13,8 @@ class User(Base):
     email_verified = Column(Boolean, default=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
     updated = Column(DateTime(timezone=True), onupdate=func.now())
-    accounttype = Column(String, default="Basic" )
+    accounttype = Column(String, default="Basic")
+    avatar_url = Column(String, nullable=True)
 
     # Relationship to the Project table
     projects = relationship('Project', back_populates='user')

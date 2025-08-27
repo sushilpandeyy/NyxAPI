@@ -1,4 +1,5 @@
 import logging
+import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncEngine
@@ -10,17 +11,22 @@ from app.routes.project_routes import projectroutes
 from app.routes.endpoints_route import endpointroutes
 from app.routes.Share_route import shareroute
 from app.routes.websocket import websocketroutes
+from app.routes.mock_api_route import mock_router
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("/var/log/fastapi.log"),
+        logging.FileHandler("nyxapi.log"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger("FastAPIApp")
+
+# Suppress bcrypt warnings
+bcrypt_logger = logging.getLogger("passlib.handlers.bcrypt")
+bcrypt_logger.setLevel(logging.ERROR)
 
 app = FastAPI()
 
@@ -56,27 +62,52 @@ async def reset_db_if_structure_differs(engine: AsyncEngine):
 # Asynchronous table creation and structure reset during startup
 @app.on_event("startup")
 async def on_startup():
+    print("\n" + "="*60)
+    print("🚀 NyxAPI Server Starting Up")
+    print("="*60)
     logger.info("Application startup initiated.")
     try:
         await reset_db_if_structure_differs(engine)
-        logger.info("Startup tasks completed successfully.")
+        logger.info("Database tables created/verified successfully.")
+        print("✅ Database connection established and schema verified")
+        print("🌟 Server ready to handle requests!")
+        print("📍 API Documentation: http://localhost:8000/docs")
+        print("="*60 + "\n")
     except Exception as e:
         logger.error(f"Error during startup: {e}", exc_info=True)
+        print("❌ Database connection failed - continuing without DB")
+        print("="*60 + "\n")
 
 @app.on_event("shutdown")
 async def on_shutdown():
+    print("\n" + "="*60)
+    print("🔻 NyxAPI Server Shutting Down")
+    print("="*60)
     logger.info("Application shutdown initiated.")
+    print("👋 Goodbye!")
+    print("="*60 + "\n")
 
 # Middleware for logging requests
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logger.info(f"Incoming request: {request.method} {request.url}")
+    start_time = time.time()
+    client_ip = request.client.host if request.client else "unknown"
+    
+    # More detailed request logging
+    logger.info(f"📥 {request.method} {request.url} from {client_ip}")
+    
     try:
         response = await call_next(request)
-        logger.info(f"Response status: {response.status_code} for {request.method} {request.url}")
+        process_time = round((time.time() - start_time) * 1000, 2)
+        
+        # Colorful status logging
+        status_emoji = "✅" if response.status_code < 400 else "❌" if response.status_code >= 500 else "⚠️"
+        logger.info(f"📤 {status_emoji} {response.status_code} | {process_time}ms | {request.method} {request.url}")
+        
         return response
     except Exception as e:
-        logger.error(f"Error handling request: {request.method} {request.url} - {e}", exc_info=True)
+        process_time = round((time.time() - start_time) * 1000, 2)
+        logger.error(f"💥 ERROR | {process_time}ms | {request.method} {request.url} - {e}", exc_info=True)
         raise
 
 # Include user, project, and endpoint routes
@@ -87,6 +118,9 @@ app.include_router(shareroute, prefix="/share", tags=["Collaboration"])
 
 # Include websocket routes
 app.include_router(websocketroutes, prefix="/ws", tags=["websocket"])
+
+# Include mock API routes (no prefix to catch all subdomain requests)
+app.include_router(mock_router, tags=["Mock API"])
 
 # Root endpoint
 @app.get("/")

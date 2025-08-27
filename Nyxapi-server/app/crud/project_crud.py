@@ -3,19 +3,11 @@ import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
-from app.models.user import Project, User, Usage  # Use the correct model name
+from app.models.user import Project, User, Usage, Endpoint  # Use the correct model name
 from fastapi import HTTPException
 from app.crud.usage_crud import fetch_projects_quant
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("/var/log/fastapi.log"),
-        logging.StreamHandler()
-    ]
-)
+# Get logger without configuring - inherit from main.py
 logger = logging.getLogger("ProjectService")
 
 # Helper function to generate a random 6-digit number
@@ -74,3 +66,70 @@ async def get_projects(db: AsyncSession, userid: int):
     except SQLAlchemyError as e:
         logger.error(f"Error fetching projects for UserID {userid}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=400, detail=f"Error in getting projects: {str(e)}")
+
+# Function to delete a project and all its associated endpoints
+async def delete_project(db: AsyncSession, project_id: int, user_id: int):
+    logger.info(f"🗑️ Attempting to delete project {project_id} for user {user_id}")
+    try:
+        # First verify the project exists and belongs to the user
+        project_query = select(Project).filter(Project.Projectid == project_id, Project.UserID == user_id)
+        result = await db.execute(project_query)
+        project = result.scalar_one_or_none()
+        
+        if not project:
+            logger.warning(f"Project {project_id} not found or doesn't belong to user {user_id}")
+            raise HTTPException(status_code=404, detail="Project not found or access denied")
+        
+        # Count endpoints before deletion for logging
+        endpoint_query = select(Endpoint).filter(Endpoint.Projectid == project_id)
+        endpoint_result = await db.execute(endpoint_query)
+        endpoints = endpoint_result.scalars().all()
+        endpoint_count = len(endpoints)
+        
+        # Delete all endpoints associated with this project
+        if endpoint_count > 0:
+            for endpoint in endpoints:
+                await db.delete(endpoint)
+            logger.info(f"🗑️ Deleted {endpoint_count} endpoints for project {project_id}")
+        
+        # Delete the project
+        await db.delete(project)
+        await db.commit()
+        
+        # Update usage statistics
+        quant = await fetch_projects_quant(db=db, userid=user_id)
+        if quant:
+            quant.Project = max(0, quant.Project - 1)  # Ensure it doesn't go below 0
+            quant.Endpoints = max(0, quant.Endpoints - endpoint_count)
+            await db.commit()
+            await db.refresh(quant)
+            logger.info(f"📊 Updated usage statistics for user {user_id}")
+        
+        logger.info(f"✅ Successfully deleted project {project_id} and {endpoint_count} endpoints")
+        return {
+            "message": f"Project '{project.Title}' and {endpoint_count} endpoints deleted successfully",
+            "deleted_project_id": project_id,
+            "deleted_endpoints": endpoint_count
+        }
+        
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logger.error(f"💥 Error deleting project {project_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error deleting project: {str(e)}")
+
+# Function to get a single project by ID for verification
+async def get_project_by_id(db: AsyncSession, project_id: int, user_id: int):
+    logger.info(f"📋 Fetching project {project_id} for user {user_id}")
+    try:
+        query = select(Project).filter(Project.Projectid == project_id, Project.UserID == user_id)
+        result = await db.execute(query)
+        project = result.scalar_one_or_none()
+        
+        if not project:
+            logger.warning(f"Project {project_id} not found for user {user_id}")
+            return None
+            
+        return project
+    except SQLAlchemyError as e:
+        logger.error(f"💥 Error fetching project {project_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error fetching project: {str(e)}")

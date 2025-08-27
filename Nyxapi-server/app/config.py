@@ -5,16 +5,12 @@ from sqlalchemy.orm import sessionmaker
 import os
 from dotenv import load_dotenv
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("/var/log/fastapi.log"),
-        logging.StreamHandler()
-    ]
-)
+# Get logger without configuring - inherit from main.py
 logger = logging.getLogger("DatabaseSetup")
+
+# Suppress SQLAlchemy echo logging to console to avoid duplication
+sqlalchemy_logger = logging.getLogger('sqlalchemy.engine')
+sqlalchemy_logger.setLevel(logging.WARNING)  # Only show warnings and errors
 
 # Load environment variables from the .env file
 load_dotenv()
@@ -25,12 +21,31 @@ if not DATABASE_URL:
     logger.critical("DATABASE_URL is not set in environment variables. Exiting application.")
     raise ValueError("DATABASE_URL is required in environment variables.")
 
+# Convert standard postgresql:// URL to asyncpg format for async engine
+async_database_url = DATABASE_URL
+if DATABASE_URL.startswith("postgresql://"):
+    async_database_url = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+    # Remove all SSL-related parameters and add ssl=false to test without SSL
+    import re
+    async_database_url = re.sub(r'[?&](ssl|sslmode|sslcert|sslkey|sslrootcert|channel_binding)=[^&]*', '', async_database_url)
+    # Clean up any remaining empty query parameters
+    async_database_url = re.sub(r'[?&]+$', '', async_database_url)
+    async_database_url = re.sub(r'[?]&', '?', async_database_url)
+    # Add ssl=require for proper asyncpg SSL configuration
+    if '?' in async_database_url:
+        async_database_url += '&ssl=require'
+    else:
+        async_database_url += '?ssl=require'
+    logger.info(f"Converted database URL for async engine: {async_database_url[:50]}...")
+
 # Create async engine
 try:
     logger.info("Creating async engine.")
     engine = create_async_engine(
-        DATABASE_URL,
-        echo=True  # Echo SQL statements for debugging purposes
+        async_database_url,
+        echo=False,  # Disable echo to prevent duplicate logging
+        pool_pre_ping=True,  # Enable connection health checks
+        pool_recycle=300  # Recycle connections every 5 minutes
     )
     logger.info("Async engine created successfully.")
 except Exception as e:

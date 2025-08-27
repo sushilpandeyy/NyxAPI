@@ -10,3 +10,9 @@ class UserCreate(BaseModel):
 class UserAuthenticate(BaseModel):
     email: EmailStr
     password: str
+
+# User deletion schema - requires extra confirmation
+class UserDelete(BaseModel):
+    email: EmailStr
+    password: str
+    confirmation: str  # User must type "DELETE" to confirm

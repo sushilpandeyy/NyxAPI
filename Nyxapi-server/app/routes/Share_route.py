@@ -17,7 +17,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("/var/log/fastapi.log"),
+        logging.FileHandler("nyxapi.log"),
         logging.StreamHandler()
     ]
 )
